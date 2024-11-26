@@ -44,3 +44,15 @@ export const chatbotsTable = pgTable("chatbots", {
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
+
+//files table
+export const filesTable = pgTable("files", {
+  id: uuid("id").primaryKey().default(sql`uuid_generate_v4()`),
+  chatbot_id: uuid('chatbot_id').references(()=>chatbotsTable.id),
+  organisation_id: uuid('organisation_id').references(() => organisationTable.id),
+  name: text("name").notNull().unique(),
+  type: text("type").notNull(),
+  url: text("url").notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
+})
