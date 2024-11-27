@@ -18,7 +18,7 @@ export default async function Home() {
       <h2 className="text-2xl mb-5">Data fetching</h2>
       <div className="mb-10">
         <h3 className="text-xl">1. Organisations created:</h3>
-        {orgs.map((org) => (
+        {orgs && orgs.map((org) => (
           <div key={org.id}>
             <p>{org.name}</p>
             <p>{org.plan}</p>
@@ -30,7 +30,7 @@ export default async function Home() {
       </div>
       <div className="mb-10">
         <h3 className="text-xl">1. Users created:</h3>
-        {users.map(async (user) => (
+        {users && users.map(async (user) => (
           <div key={user.id}>
             <p>{user.name}</p>
             <p>{user.email}</p>
