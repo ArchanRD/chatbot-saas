@@ -34,8 +34,7 @@ const RegisterForm = () => {
       setNotification({ message: data.message, type: "error" });
     }
   }
-  // @ts-ignore 
-  catch (err) {
+  catch {
     setLoading(false);
     setNotification({
       message: "Something went wrong. Please try again.",

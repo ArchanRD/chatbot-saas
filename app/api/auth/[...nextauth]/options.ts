@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Email or password is missing");
           }
 
-          const users = await getUserDetailsByEmail(credentials?.email!);
+          const users = await getUserDetailsByEmail(credentials.email!);
           const user = users[0];
 
           if (!user) {
@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
           }
           const isPasswordCorrect = await verifyUserPassword(
             user,
-            credentials?.password!
+            credentials.password!
           );
 
           if (isPasswordCorrect) {
@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid password");
             return null;
           }
-        } catch (err) {
+        } catch {
           throw new Error("Something went wrong!");
         }
       },
