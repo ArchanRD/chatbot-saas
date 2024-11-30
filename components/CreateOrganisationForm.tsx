@@ -12,11 +12,14 @@ type Result =
 
 const CreateOrganisationForm = () => {
   const [orgName, setOrgName] = useState("");
-  const [error, setError] = useState({ message: "", error: false });
+  const [notification, setNotification] = useState({
+    message: "",
+    error: false,
+  });
 
   const session = useSession();
   const userID = session.data?.user.id;
-  const defaultOrgName = `${session.data?.user.name}'s org`
+  const defaultOrgName = `${session.data?.user.name}'s org`;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -26,9 +29,10 @@ const CreateOrganisationForm = () => {
     const result: Result = await createOrganisation(orgName, userID!, "admin");
     if (typeof result == "object" && "error" in result) {
       if (result?.error) {
-        setError({ message: result.message, error: true });
-      }else{
+        setNotification({ message: result.message, error: true });
       }
+    }else{
+      setNotification({ message: "Org created successfully", error: false });
     }
     console.log(result);
   };
@@ -39,7 +43,11 @@ const CreateOrganisationForm = () => {
         onSubmit={handleSubmit}
         className="w-96 border border-gray-300 p-5 rounded-lg"
       >
-        {error.error && <p className="text-red-500">{error.message}</p>}
+        {notification && (
+          <p className={notification.error ? "text-red-500" : "text-green-500"}>
+            {notification.message}
+          </p>
+        )}
         <h1 className="text-xl font-bold">Create your organisation</h1>
         <input
           className="border border-gray-500 rounded-lg p-3 my-2"
