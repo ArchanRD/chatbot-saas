@@ -1,7 +1,11 @@
+
+import CreateOrganisationForm from "@/components/CreateOrganisationForm";
 import React from "react";
 
 const page = () => {
-  return <div>Account page</div>;
+  return <div>
+    <CreateOrganisationForm />
+  </div>;
 };
 
 export default page;
