@@ -16,7 +16,6 @@ export const usersTable = pgTable("users", {
   email: varchar("email", { length: 255 }).notNull(),
   name: text("name").notNull().default("User"),
   password: varchar("password").notNull(),
-  role: varchar("role").notNull().default("user"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -28,6 +27,7 @@ export const organisationTable = pgTable("organisation", {
     .default(sql`uuid_generate_v4()`),
   user_id: uuid("user_id").references(() => usersTable.id),
   name: text("name").notNull(),
+  role: varchar("role").notNull().default("user"),
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),
   settings: jsonb("settings").notNull().default({}),
@@ -68,7 +68,7 @@ export const filesTable = pgTable("files", {
 });
 
 
-export type Users = typeof usersTable.$inferSelect;
+export type clear = typeof usersTable.$inferSelect;
 export type Organisation = typeof organisationTable.$inferSelect;
 export type Chatbot = typeof chatbotsTable.$inferSelect;
 export type Files = typeof filesTable.$inferSelect;
