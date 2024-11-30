@@ -68,7 +68,7 @@ export const filesTable = pgTable("files", {
 });
 
 
-export type clear = typeof usersTable.$inferSelect;
+export type Users = typeof usersTable.$inferSelect;
 export type Organisation = typeof organisationTable.$inferSelect;
 export type Chatbot = typeof chatbotsTable.$inferSelect;
 export type Files = typeof filesTable.$inferSelect;

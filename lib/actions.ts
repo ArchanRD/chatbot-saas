@@ -24,6 +24,5 @@ export const createUser = async (email: string, password: string) => {
     email: email,
     password: hashedPassword,
     name: "user",
-    role: "user",
   });
 };
