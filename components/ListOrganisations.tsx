@@ -2,6 +2,7 @@
 import { Organisation } from "@/db/schema";
 import { fetchAllOrganisations, joinOrganisation } from "@/lib/actions";
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import React, { FormEvent, useEffect, useState } from "react";
 
 type Notification = {
@@ -11,7 +12,8 @@ type Notification = {
 
 const ListOrganisations = () => {
   const session = useSession();
-  const [loading, setloading] = useState(true);
+
+  const [loading, setloading] = useState<boolean>(false);
   const [orgs, setOrgs] = useState<Organisation[]>([]);
   const [notification, setNotification] = useState<Notification>({
     message: "",
@@ -19,18 +21,46 @@ const ListOrganisations = () => {
   });
 
   useEffect(() => {
-    const fetchOrgs = async () => {
-      try {
-        const res = await fetchAllOrganisations();
-        setloading(false);
-        setOrgs(res);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
-    fetchOrgs();
+    if (session.status == "loading") {
+      console.log(24);
+      setloading(true);
+    } else if (session.status == "unauthenticated") {
+      return redirect("/login");
+    } else {
+      console.log(26);
+      setloading(false);
+
+      // fetch orgs
+      const fetchOrgs = async () => {
+        try {
+          const res = await fetchAllOrganisations();
+          setloading(false);
+          setOrgs(res);
+        } catch (error) {
+          console.log("error", error);
+        }
+      };
+      fetchOrgs();
+    }
     return () => {};
-  }, []);
+  }, [session.status]);
+
+  // useEffect(() => {
+  //   if (session.status !== "loading") {
+  //     console.log(34)
+  //     const fetchOrgs = async () => {
+  //       try {
+  //         const res = await fetchAllOrganisations();
+  //         setloading(false);
+  //         setOrgs(res);
+  //       } catch (error) {
+  //         console.log("error", error);
+  //       }
+  //     };
+  //     fetchOrgs();
+  //   }
+  //   return () => {};
+  // }, []);
 
   const handleJoin = async (e: FormEvent) => {
     e.preventDefault();
@@ -50,7 +80,7 @@ const ListOrganisations = () => {
         }
         console.log(52);
         setNotification({ type: "success", message: res.message });
-      } catch (error) {
+      } catch {
         return Error("There is an ERROR");
       }
     } else {
@@ -80,7 +110,11 @@ const ListOrganisations = () => {
             <form onSubmit={handleJoin} method="post">
               <input type="hidden" name="orgId" value={org.id} />
               <input type="hidden" name="orgName" value={org.name} />
-              <input type="hidden" name="userId" value={session.data.user.id} />
+              <input
+                type="hidden"
+                name="userId"
+                value={session.data?.user.id}
+              />
               <button className="bg-green-500 py-1 px-4 text-white rounded-md hover:bg-green-600">
                 Join
               </button>
