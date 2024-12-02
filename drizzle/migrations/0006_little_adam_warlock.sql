@@ -1,0 +1,1 @@
+ALTER TABLE "collaborators" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;

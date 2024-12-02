@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/db/db";
-import { organisationTable, usersTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { collaboratorsTable, organisationTable, usersTable } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { Users } from "@/db/schema";
 
@@ -22,7 +22,7 @@ export const createUser = async (email: string, password: string) => {
   return await db.insert(usersTable).values({
     email: email,
     password: hashedPassword,
-    name: "user",
+    name: email.split("@")[0],
   });
 };
 
@@ -36,10 +36,10 @@ export const createOrganisation = async (
     .from(organisationTable)
     .where(eq(organisationTable.user_id, userId));
 
-    console.log("ORG LENGTH", org.length);
+  console.log("ORG LENGTH", org.length);
 
   if (org.length > 0) {
-    return {error: true, message: "org already created"}
+    return { error: true, message: "org already created" };
   }
 
   const result = await db.insert(organisationTable).values({
@@ -47,6 +47,32 @@ export const createOrganisation = async (
     user_id: userId,
     plan: "free",
     role: role,
-  })
+  });
   return JSON.stringify(result);
+};
+
+export const fetchAllOrganisations = async () => {
+  return await db.select().from(organisationTable);
+};
+
+export const joinOrganisation = async (orgId: string, userId: string) => {
+  const isAlreadyCollaborator = await db
+    .select()
+    .from(collaboratorsTable)
+    .where(
+      and(
+        eq(collaboratorsTable.org_id, orgId),
+        eq(collaboratorsTable.user_id, userId)
+      )
+    );
+
+  if (isAlreadyCollaborator.length > 0) {
+    return { success: false, message: "Already a collaborator" };
+  }
+
+  await db.insert(collaboratorsTable).values({
+    user_id: userId,
+    org_id: orgId,
+  });
+  return { success: true, message: "You have joined the organisation" };
 };

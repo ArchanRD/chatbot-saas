@@ -1,7 +1,7 @@
 "use client";
 import { createOrganisation } from "@/lib/actions";
 import { useSession } from "next-auth/react";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 
 type Result =
   | {
@@ -11,30 +11,45 @@ type Result =
   | string;
 
 const CreateOrganisationForm = () => {
+  const session = useSession();
+
   const [orgName, setOrgName] = useState("");
   const [notification, setNotification] = useState({
     message: "",
     error: false,
   });
 
-  const session = useSession();
   const userID = session.data?.user.id;
   const defaultOrgName = `${session.data?.user.name}'s org`;
 
+  useEffect(() => {
+    setOrgName(defaultOrgName);
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (orgName.trim().length === 0) {
+      setNotification({
+        message: "Please enter valid organisation name",
+        error: true,
+      });
+    } else {
+      console.log(orgName, userID);
 
-    console.log(orgName, userID);
-
-    const result: Result = await createOrganisation(orgName, userID!, "admin");
-    if (typeof result == "object" && "error" in result) {
-      if (result?.error) {
-        setNotification({ message: result.message, error: true });
+      const result: Result = await createOrganisation(
+        orgName,
+        userID!,
+        "admin"
+      );
+      if (typeof result == "object" && "error" in result) {
+        if (result?.error) {
+          setNotification({ message: result.message, error: true });
+        }
+      } else {
+        setNotification({ message: "Org created successfully", error: false });
       }
-    }else{
-      setNotification({ message: "Org created successfully", error: false });
+      console.log(result);
     }
-    console.log(result);
   };
 
   return (
@@ -54,9 +69,9 @@ const CreateOrganisationForm = () => {
           type="text"
           name="org_name"
           id=""
-          defaultValue={defaultOrgName}
-          onChange={(e) => setOrgName(e.target.value)}
+          onChange={(e) => {setOrgName(e.target.value); setNotification({message: "", error: false})}}
           placeholder="org name"
+          required
         />
         <button
           className="block bg-black text-white py-2 px-4 rounded-lg"

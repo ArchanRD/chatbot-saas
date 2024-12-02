@@ -67,8 +67,17 @@ export const filesTable = pgTable("files", {
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const collaboratorsTable = pgTable("collaborators", {
+  id: uuid("collab_id")
+    .primaryKey()
+    .default(sql`uuid_generate_v4()`),
+  user_id: uuid("user_id").references(() => usersTable.id),
+  org_id: uuid("org_id").references(() => organisationTable.id),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
 
 export type Users = typeof usersTable.$inferSelect;
 export type Organisation = typeof organisationTable.$inferSelect;
 export type Chatbot = typeof chatbotsTable.$inferSelect;
 export type Files = typeof filesTable.$inferSelect;
+export type Collaborator = typeof collaboratorsTable.$inferSelect;
