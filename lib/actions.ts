@@ -36,24 +36,28 @@ export const createOrganisation = async (
     .from(organisationTable)
     .where(eq(organisationTable.user_id, userId));
 
-  console.log("ORG LENGTH", org.length);
-
   if (org.length > 0) {
-    return { error: true, message: "org already created" };
+    return { error: true, message: "You have already created an organisation" };
   }
 
-  const result = await db.insert(organisationTable).values({
+  await db.insert(organisationTable).values({
     name: orgName,
     user_id: userId,
     plan: "free",
     role: role,
   });
-  return JSON.stringify(result);
+  return { error: false, message: "Organisation created successfully" };
 };
 
 export const fetchAllOrganisations = async () => {
   return await db.select().from(organisationTable);
 };
+
+export const fetchOrganisationByUserId = async (orgId: string) => {
+  const res = await db.select().from(organisationTable).where(eq(organisationTable.user_id, orgId));
+  console.log(res);
+  return res;
+}
 
 export const joinOrganisation = async (orgId: string, userId: string) => {
   const isAlreadyCollaborator = await db

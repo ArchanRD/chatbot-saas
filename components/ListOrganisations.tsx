@@ -1,127 +1,111 @@
 "use client";
 import { Organisation } from "@/db/schema";
-import { fetchAllOrganisations, joinOrganisation } from "@/lib/actions";
-import { useSession } from "next-auth/react";
+import { fetchOrganisationByUserId } from "@/lib/actions";
 import { redirect } from "next/navigation";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { Plus } from "lucide-react";
+import CreateOrganisationModal from "./CreateOrganisationModal";
+import OrganisationCard from "./OrganisationCard";
 
-type Notification = {
-  message: string;
-  type: "error" | "success" | "";
-};
-
-const ListOrganisations = () => {
-  const session = useSession();
-
+const ListOrganisations = ({ session }) => {
   const [loading, setloading] = useState<boolean>(false);
   const [orgs, setOrgs] = useState<Organisation[]>([]);
-  const [notification, setNotification] = useState<Notification>({
-    message: "",
-    type: "",
-  });
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (session.status == "loading") {
-      console.log(24);
       setloading(true);
     } else if (session.status == "unauthenticated") {
       return redirect("/login");
     } else {
-      console.log(26);
       setloading(false);
 
-      // fetch orgs
-      const fetchOrgs = async () => {
+      // fetch user's orgs
+      const fetchOrgsDetails = async () => {
         try {
-          const res = await fetchAllOrganisations();
+          setloading(true);
+          const res = await fetchOrganisationByUserId(session.data.user.id);
+          console.log(38, res);
           setloading(false);
           setOrgs(res);
         } catch (error) {
-          console.log("error", error);
+          console.log(error);
         }
       };
-      fetchOrgs();
+      fetchOrgsDetails();
     }
     return () => {};
   }, [session.status]);
 
-  // useEffect(() => {
-  //   if (session.status !== "loading") {
-  //     console.log(34)
-  //     const fetchOrgs = async () => {
-  //       try {
-  //         const res = await fetchAllOrganisations();
-  //         setloading(false);
-  //         setOrgs(res);
-  //       } catch (error) {
-  //         console.log("error", error);
-  //       }
-  //     };
-  //     fetchOrgs();
+  // const handleJoin = async (e: FormEvent) => {
+  //   e.preventDefault();
+  //   if (session.status === "unauthenticated") {
+  //     return redirect("/login");
   //   }
-  //   return () => {};
-  // }, []);
 
-  const handleJoin = async (e: FormEvent) => {
-    e.preventDefault();
-    if (session.status === "unauthenticated") {
-      console.log("you must be logged in");
-      return;
-    }
-    if (session.status === "authenticated") {
-      try {
-        const orgId = e.currentTarget["orgId"].value;
-        const userId = session.data.user.id;
-        const res = await joinOrganisation(orgId, userId);
-        console.log(res);
-        if (!res?.success) {
-          setNotification({ message: res.message, type: "error" });
-          return;
-        }
-        console.log(52);
-        setNotification({ type: "success", message: res.message });
-      } catch {
-        return Error("There is an ERROR");
-      }
-    } else {
-      console.log("Please try again");
-    }
-  };
-  return (
-    <div>
-      {notification && (
-        <p
-          className={`text-${
-            notification.type === "error" ? "red" : "green"
-          }-500`}
-        >
-          {notification.message}
-        </p>
-      )}
-      {loading == true && <p>Content is loading...</p>}
-      <div className="border border-gray-300 p-3 mx-auto w-96 rounded-xl">
-        {orgs.map((org) => (
-          <div key={org.id} className="p-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">{org.name}</h2>
-            <p className="text-gray-600">Plan: {org.plan}</p>
-            <p className="text-gray-600">
-              Created at: {org.created_at.toDateString()}
-            </p>
-            <form onSubmit={handleJoin} method="post">
-              <input type="hidden" name="orgId" value={org.id} />
-              <input type="hidden" name="orgName" value={org.name} />
-              <input
-                type="hidden"
-                name="userId"
-                value={session.data?.user.id}
-              />
-              <button className="bg-green-500 py-1 px-4 text-white rounded-md hover:bg-green-600">
-                Join
-              </button>
-            </form>
-          </div>
-        ))}
+  //   if (session.status === "authenticated") {
+  //     try {
+  //       const orgId = e.currentTarget["orgId"].value;
+  //       const userId = session.data.user.id;
+  //       const res = await joinOrganisation(orgId, userId);
+  //       if (!res?.success) {
+  //         setNotification({ message: res.message, type: "error" });
+  //         return;
+  //       }
+  //       setNotification({ type: "success", message: res.message });
+  //     } catch {
+  //       return Error("There is an ERROR");
+  //     }
+  //   } else {
+  //     console.log("Please try again");
+  //   }
+  // };
+
+  if (loading) {
+    return (
+      <div className="m-2 bg-white p-5 rounded-2xl flex items-center justify-center">
+        <p className="">Loading...</p>
       </div>
+    );
+  }
+
+  return (
+    <div className="m-2 bg-white p-8 rounded-2xl">
+      {orgs.length === 0 ? (
+        <div className="font-poppins flex items-center justify-center flex-col">
+          <h1 className="mb-1 font-bold text-gray-800 text-3xl">
+            Create your organisation
+          </h1>
+          <p className="text-gray-500 w-96 text-center mb-5">
+            You have not created any organisation yet. Start by creating
+            organisation and invite collaborators.
+          </p>
+          <Button
+            onClick={() => setShowModal(true)}
+            size="default"
+            className="text-base"
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            Create organisation
+          </Button>
+        </div>
+      ) : (
+        <div className="font-poppins">
+          <h1 className="capitalize mb-5 font-bold text-gray-800 text-3xl">
+            Your organisation
+          </h1>
+          <hr />
+          <OrganisationCard org={orgs[0]} />
+          <hr />
+        </div>
+      )}
+      {showModal && (
+        <CreateOrganisationModal
+          session={session}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
