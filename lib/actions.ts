@@ -1,6 +1,11 @@
 "use server";
 import { db } from "@/db/db";
-import { collaboratorsTable, organisationTable, usersTable } from "@/db/schema";
+import {
+  collaboratorsTable,
+  invitationsTable,
+  organisationTable,
+  usersTable,
+} from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { Users } from "@/db/schema";
@@ -29,7 +34,6 @@ export const createUser = async (email: string, password: string) => {
 export const createOrganisation = async (
   orgName: string,
   userId: string,
-  role: string
 ) => {
   const org = await db
     .select()
@@ -44,39 +48,96 @@ export const createOrganisation = async (
     name: orgName,
     user_id: userId,
     plan: "free",
-    role: role,
   });
   return { error: false, message: "Organisation created successfully" };
 };
 
-export const fetchAllOrganisations = async () => {
-  return await db.select().from(organisationTable);
+export const fetchOrgDetailsById = async (orgId: string) => {
+  return await db
+    .select()
+    .from(organisationTable)
+    .where(eq(organisationTable.id, orgId));
 };
 
-export const fetchOrganisationByUserId = async (orgId: string) => {
-  const res = await db.select().from(organisationTable).where(eq(organisationTable.user_id, orgId));
-  console.log(res);
-  return res;
-}
+export const fetchOrganisationByUserId = async (userId: string) => {
+  return await db
+    .select()
+    .from(organisationTable)
+    .where(eq(organisationTable.user_id, userId));
+};
 
-export const joinOrganisation = async (orgId: string, userId: string) => {
-  const isAlreadyCollaborator = await db
+export const fetchOrgsWithCollaboration = async (email: string) => {
+  return await db
     .select()
     .from(collaboratorsTable)
-    .where(
-      and(
-        eq(collaboratorsTable.org_id, orgId),
-        eq(collaboratorsTable.user_id, userId)
-      )
-    );
+    .where(eq(collaboratorsTable.user_email, email));
+};
 
-  if (isAlreadyCollaborator.length > 0) {
-    return { success: false, message: "Already a collaborator" };
+export const isAlreadyCollaborator = async (email: string) => {
+  return await db
+    .select()
+    .from(collaboratorsTable)
+    .where(eq(collaboratorsTable.user_email, email));
+};
+
+export const createInvitationRecord = async (
+  orgId: string,
+  email: string,
+  token: string,
+  role: string,
+  expires_at: Date
+) => {
+  return await db.insert(invitationsTable).values({
+    email: email,
+    orgId: orgId,
+    token: token,
+    role: role,
+    expires_at: expires_at,
+    status: "PENDING",
+  });
+};
+
+export const fetchInvitation = async (token: string) => {
+  return await db
+    .select()
+    .from(invitationsTable)
+    .where(eq(invitationsTable.token, token));
+};
+
+export const joinOrganisation = async (
+  orgId: string,
+  email: string,
+  role: string
+) => {
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+
+  if (user.length == 0) {
+    return {
+      type: "error",
+      message: "User must be registered. Register and try again.",
+    };
   }
 
+  const isCollaborator = await isAlreadyCollaborator(email);
+  if (isCollaborator.length > 0) {
+    return {
+      type: "error",
+      message: "User with email is already a collaborator",
+    };
+  }
+  console.log(108, email);
+
   await db.insert(collaboratorsTable).values({
-    user_id: userId,
+    user_email: email,
     org_id: orgId,
+    role: role,
+    created_at: new Date(),
   });
-  return { success: true, message: "You have joined the organisation" };
+
+  await db.update(invitationsTable).set({ status: "ACCEPTED" });
+
+  return { type: "success", message: "You have joined the organisation" };
 };

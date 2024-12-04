@@ -31,7 +31,6 @@ const CreateOrganisationModal = ({ onClose, session }) => {
       const result = await createOrganisation(
         orgName,
         session.data.user.id,
-        "admin"
       );
       if (result?.error) {
         setnotification({

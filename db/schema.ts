@@ -13,7 +13,7 @@ export const usersTable = pgTable("users", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
-  email: varchar("email", { length: 255 }).notNull(),
+  email: text("email").notNull().unique(),
   name: text("name").notNull().default("User"),
   password: varchar("password").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
@@ -27,7 +27,6 @@ export const organisationTable = pgTable("organisation", {
     .default(sql`uuid_generate_v4()`),
   user_id: uuid("user_id").references(() => usersTable.id),
   name: text("name").notNull(),
-  role: varchar("role").notNull().default("user"),
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),
   settings: jsonb("settings").notNull().default({}),
@@ -71,13 +70,25 @@ export const collaboratorsTable = pgTable("collaborators", {
   id: uuid("collab_id")
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
-  user_id: uuid("user_id").references(() => usersTable.id),
+  user_email: text("user_email").references(() => usersTable.email),
   org_id: uuid("org_id").references(() => organisationTable.id),
+  role: text("role").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const invitationsTable = pgTable("invitations", {
+  id: uuid("id").primaryKey().default(sql`uuid_generate_v4()`),
+  email: text("email").unique().notNull(),
+  orgId: uuid("orgId").references(()=>organisationTable.id),
+  token: text("token"),
+  role: text("role"),
+  expires_at: timestamp("expires_at").notNull(),
+  status: text("status").notNull().default("PENDING")
+})
 
 export type Users = typeof usersTable.$inferSelect;
 export type Organisation = typeof organisationTable.$inferSelect;
 export type Chatbot = typeof chatbotsTable.$inferSelect;
 export type Files = typeof filesTable.$inferSelect;
 export type Collaborator = typeof collaboratorsTable.$inferSelect;
+export type Invitation = typeof invitationsTable.$inferSelect;
