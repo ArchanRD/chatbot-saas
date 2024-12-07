@@ -26,6 +26,7 @@ export const organisationTable = pgTable("organisation", {
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
   user_id: uuid("user_id").references(() => usersTable.id),
+  api_key: text("api_key"),
   name: text("name").notNull(),
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),
@@ -44,8 +45,7 @@ export const chatbotsTable = pgTable("chatbots", {
   organisation_id: uuid("organisation_id").references(
     () => organisationTable.id
   ),
-  api_key: varchar("api_key").notNull().unique(),
-  settings: jsonb("settings").notNull().default({}),
+  welcome_mesg: text("welcome_mesg").default("Hey! How can I help you?"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -77,14 +77,16 @@ export const collaboratorsTable = pgTable("collaborators", {
 });
 
 export const invitationsTable = pgTable("invitations", {
-  id: uuid("id").primaryKey().default(sql`uuid_generate_v4()`),
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v4()`),
   email: text("email").unique().notNull(),
-  orgId: uuid("orgId").references(()=>organisationTable.id),
+  orgId: uuid("orgId").references(() => organisationTable.id),
   token: text("token"),
   role: text("role"),
   expires_at: timestamp("expires_at").notNull(),
-  status: text("status").notNull().default("PENDING")
-})
+  status: text("status").notNull().default("PENDING"),
+});
 
 export type Users = typeof usersTable.$inferSelect;
 export type Organisation = typeof organisationTable.$inferSelect;

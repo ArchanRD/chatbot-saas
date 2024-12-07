@@ -1,6 +1,7 @@
 "use server";
 import { db } from "@/db/db";
 import {
+  chatbotsTable,
   collaboratorsTable,
   invitationsTable,
   organisationTable,
@@ -31,10 +32,7 @@ export const createUser = async (email: string, password: string) => {
   });
 };
 
-export const createOrganisation = async (
-  orgName: string,
-  userId: string,
-) => {
+export const createOrganisation = async (orgName: string, userId: string) => {
   const org = await db
     .select()
     .from(organisationTable)
@@ -141,3 +139,21 @@ export const joinOrganisation = async (
 
   return { type: "success", message: "You have joined the organisation" };
 };
+
+export const createChatbot = async (
+  name: string,
+  desc: string,
+  orgId: string,
+  welcome_mesg: string
+) => {
+  return await db.insert(chatbotsTable).values({
+    name,
+    description: desc,
+    organisation_id: orgId,
+    welcome_mesg,
+  });
+};
+
+export const checkIfChatbotAlreadyCreated = async (orgId:string)=>{
+  return await db.select().from(chatbotsTable).where(eq(chatbotsTable.organisation_id, orgId))
+}

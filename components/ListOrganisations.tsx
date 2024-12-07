@@ -1,10 +1,6 @@
 "use client";
-import { Collaborator, Organisation } from "@/db/schema";
-import {
-  fetchOrganisationByUserId,
-  fetchOrgDetailsById,
-  fetchOrgsWithCollaboration,
-} from "@/lib/actions";
+import { Organisation } from "@/db/schema";
+import { fetchOrganisationByUserId } from "@/lib/actions";
 import { redirect } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
@@ -16,9 +12,6 @@ const ListOrganisations = ({ session }) => {
   const [loading, setloading] = useState<boolean>(false);
   const [orgs, setOrgs] = useState<Organisation[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [orgWithCollaboration, setOrgWithCollaboration] = useState<
-    Organisation[]
-  >([]);
 
   useEffect(() => {
     if (session.status == "loading") {
@@ -32,17 +25,11 @@ const ListOrganisations = ({ session }) => {
       const fetchOrgsDetails = async () => {
         try {
           setloading(true);
-          const [org, orgWithCollab] = await Promise.all([
+          const [org] = await Promise.all([
             await fetchOrganisationByUserId(session.data.user.id),
-            await fetchOrgsWithCollaboration(session.data.user.email),
           ]);
           setloading(false);
           setOrgs(org);
-
-          if (orgWithCollab.length > 0) {
-            const res = await fetchOrgDetailsById(orgWithCollab[0].org_id!);
-            setOrgWithCollaboration(res);
-          }
         } catch (error) {
           setloading(false);
           console.error("Failed to fetch organisations:", error);
@@ -62,8 +49,8 @@ const ListOrganisations = ({ session }) => {
   }
 
   return (
-    <div className="p-3">
-      <div className="bg-white p-8 rounded-2xl">
+    <div className="p-3 flex-1">
+      <div className="bg-gray-50 p-5 rounded-2xl ">
         {orgs.length === 0 ? (
           <div className="font-poppins flex items-center justify-center flex-col">
             <h1 className="mb-1 font-bold text-gray-800 text-3xl">
@@ -84,7 +71,7 @@ const ListOrganisations = ({ session }) => {
           </div>
         ) : (
           <div className="font-poppins">
-            <h1 className="capitalize mb-5 font-bold text-gray-800 text-3xl">
+            <h1 className="capitalize mb-3 font-bold text-gray-800 text-2xl">
               Your organisation
             </h1>
             <hr />
@@ -98,19 +85,6 @@ const ListOrganisations = ({ session }) => {
             session={session}
             onClose={() => setShowModal(false)}
           />
-        )}
-      </div>
-      {/* List org with collaboration  */}
-      <div className="my-3 bg-white p-8 rounded-2xl">
-        {orgWithCollaboration.length > 0 && (
-          <div className="font-poppins">
-            <h1 className="capitalize mb-5 font-bold text-gray-800 text-3xl">
-              Your are joined to an organisation
-            </h1>
-            <hr />
-            <OrganisationCard org={orgWithCollaboration[0]} />
-            <hr />
-          </div>
         )}
       </div>
     </div>
