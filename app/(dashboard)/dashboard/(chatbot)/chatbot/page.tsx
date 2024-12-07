@@ -1,19 +1,16 @@
 "use client";
 import { ChatbotModal } from "@/components/modals/ChatbotModal";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Organisation } from "@/db/schema";
-import { useToast } from "@/hooks/use-toast";
 import { fetchOrganisationByUserId } from "@/lib/actions";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const page = () => {
+const Page = () => {
   const session = useSession();
   const [loading, setloading] = useState(false);
   const [org, setOrg] = useState<Organisation>();
-  const { toast } = useToast();
 
   useEffect(() => {
     if (session.status == "unauthenticated") {
@@ -24,7 +21,7 @@ const page = () => {
       async function getOrg() {
         try {
           setloading(true);
-          const res = await fetchOrganisationByUserId(session.data?.user.id!);
+          const res = await fetchOrganisationByUserId(session.data!.user.id!);
           setloading(false);
           setOrg(res[0]);
         } catch (error) {
@@ -51,9 +48,9 @@ const page = () => {
           </p>
           <ChatbotModal orgName={org?.name} orgId={org?.id} />
         </div>
-      </Card> 
+      </Card>
     </div>
   );
 };
 
-export default page;
+export default Page;

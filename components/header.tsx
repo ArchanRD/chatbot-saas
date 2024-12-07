@@ -1,7 +1,5 @@
 "use client"
-import { Search, Bell, HelpCircle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { signOut, useSession } from 'next-auth/react'
 
 export function Header() {

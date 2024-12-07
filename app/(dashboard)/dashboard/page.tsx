@@ -1,16 +1,18 @@
 "use client";
-import { Header } from "@/components/header";
 import ListOrganisations from "@/components/ListOrganisations";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const session = useSession();
   const [chatbot, setChatbot] = useState([]);
+
+  useEffect(()=>{
+    setChatbot([]);
+  }, [])
 
   if (session.status == "loading") {
     return "loading...";

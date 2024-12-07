@@ -87,7 +87,7 @@ export function InviteModal({ orgId, orgName }) {
         <DialogHeader className="font-poppins">
           <DialogTitle>Invite people to your organization</DialogTitle>
           <DialogDescription>
-            We'll email them a link to join organization.
+            We&apos;ll email them a link to join organization.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4 font-poppins">

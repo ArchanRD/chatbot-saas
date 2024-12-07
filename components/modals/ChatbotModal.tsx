@@ -84,12 +84,12 @@ export function ChatbotModal({ orgName, orgId }) {
     if (res.status == 200) {
       toast({
         title: "Chatbot created!",
-        description: res.message,
+        description: `${res.message}`,
       });
     }else{
       toast({
         title: "Failed",
-        description: res.message,
+        description: `${res.message}`,
         variant:"destructive"
       });
     }
@@ -105,7 +105,7 @@ export function ChatbotModal({ orgName, orgId }) {
         <DialogHeader>
           <DialogTitle>Create Chatbot</DialogTitle>
           <DialogDescription>
-            Set up your new chatbot here. Click save when you're done.
+            Set up your new chatbot here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -120,7 +120,7 @@ export function ChatbotModal({ orgName, orgId }) {
                     <Input placeholder="My Awesome Chatbot" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is your chatbot's display name.
+                    This is your chatbot&apos;s display name.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

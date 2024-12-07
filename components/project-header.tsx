@@ -2,10 +2,8 @@
 import { Edit, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InviteModal } from "./invite-modal";
-import { useState } from "react";
 
 export function ProjectHeader({ createdAt, orgName, orgId }) {
-  const [showInviteModal, setShowInviteModal] = useState(false);
   return (
     <div className="space-y-4 py-6">
       <div className="flex items-center text-sm text-muted-foreground">
