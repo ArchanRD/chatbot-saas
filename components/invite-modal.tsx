@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Terminal, UserPlus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Spinner } from "./ui/spinner";
 
 interface InvitedUser {
   email: string;
@@ -23,6 +24,7 @@ interface InvitedUser {
 export function InviteModal({ orgId, orgName }) {
   const [email, setEmail] = React.useState("");
   const [invitedUsers] = React.useState<InvitedUser[]>([]);
+  const [formSubmitLoading, setFormSubmitLoading] = React.useState(false);
   const [notification, setNotification] = React.useState({
     message: "",
     type: "",
@@ -39,6 +41,7 @@ export function InviteModal({ orgId, orgName }) {
     }
 
     try {
+      setFormSubmitLoading(true);
       const res = await fetch("/api/collaborate/invite", {
         method: "POST",
         headers: {
@@ -46,29 +49,29 @@ export function InviteModal({ orgId, orgName }) {
         },
         body: JSON.stringify({ email, orgId, role: "member", orgName }),
       });
+      setFormSubmitLoading(false);
 
       if (!res.ok) {
         const error = await res.json();
+        console.log(res);
         setNotification({ message: error.message, type: "error" });
         return;
       }
 
       const result = await res.json();
-      console.log(result)
-      if(result.status == 200){
-
+      if (result.status == 200) {
         setNotification({
           message: result.message,
           type: "success",
         });
-      }else{
+      } else {
         setNotification({
           message: result.message,
           type: "error",
         });
       }
     } catch (error) {
-      console.error(error);
+      console.log("error occured", error);
     }
   };
 
@@ -103,7 +106,13 @@ export function InviteModal({ orgId, orgName }) {
               className="flex-1"
               required
             />
-            <Button type="submit">Send invite</Button>
+            <Button
+              type="submit"
+              className="disabled:bg-black w-28 transition-all ease-in-out disabled:cursor-not-allowed"
+              disabled={formSubmitLoading}
+            >
+              {formSubmitLoading ? <Spinner className="text-white" /> : "Send invite"}
+            </Button>
           </form>
           {notification.message && (
             <Alert className="font-poppins">

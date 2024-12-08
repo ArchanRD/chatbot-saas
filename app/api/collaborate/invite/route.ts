@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { email, orgId, role, orgName} = await req.json();
+  const { email, orgId, role, orgName } = await req.json();
 
   // Check if collaborator already exists
   const isCollaborator = await isAlreadyCollaborator(email);

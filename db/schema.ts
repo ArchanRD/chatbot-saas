@@ -80,7 +80,7 @@ export const invitationsTable = pgTable("invitations", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
-  email: text("email").unique().notNull(),
+  email: text("email").notNull(),
   orgId: uuid("orgId").references(() => organisationTable.id),
   token: text("token"),
   role: text("role"),

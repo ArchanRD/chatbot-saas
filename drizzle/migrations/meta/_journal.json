@@ -120,6 +120,13 @@
       "when": 1733590203492,
       "tag": "0016_pale_crusher_hogan",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1733673138951,
+      "tag": "0017_lucky_squadron_sinister",
+      "breakpoints": true
     }
   ]
 }

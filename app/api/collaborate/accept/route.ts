@@ -7,10 +7,13 @@ export async function POST(req: Request) {
 
   if (
     !invitation ||
-    invitation.status !== "PENDING" ||
+    invitation.status === "ACCEPTED" ||
     invitation.expires_at < new Date()
   ) {
-    return NextResponse.json({ message: "Invalid or expired invitation", status: 409 });
+    return NextResponse.json({
+      message: "Invalid or expired invitation",
+      status: 409,
+    });
   }
 
   const response = await joinOrganisation(
@@ -18,7 +21,6 @@ export async function POST(req: Request) {
     invitation.email,
     invitation.role!
   );
-  console.log(25, "called join org");
 
   if (response.type == "error") {
     return NextResponse.json({ message: response.message, status: 409 });
