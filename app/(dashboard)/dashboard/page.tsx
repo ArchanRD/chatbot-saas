@@ -10,9 +10,9 @@ export default function Home() {
   const session = useSession();
   const [chatbot, setChatbot] = useState([]);
 
-  useEffect(()=>{
+  useEffect(() => {
     setChatbot([]);
-  }, [])
+  }, []);
 
   if (session.status == "loading") {
     return "loading...";

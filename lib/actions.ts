@@ -154,6 +154,16 @@ export const createChatbot = async (
   });
 };
 
-export const checkIfChatbotAlreadyCreated = async (orgId:string)=>{
-  return await db.select().from(chatbotsTable).where(eq(chatbotsTable.organisation_id, orgId))
-}
+export const checkIfChatbotAlreadyCreated = async (orgId: string) => {
+  return await db
+    .select()
+    .from(chatbotsTable)
+    .where(eq(chatbotsTable.organisation_id, orgId));
+};
+
+export const fetchChatbotDetailsByOrgId = async (orgId: string) => {
+  return await db
+    .select()
+    .from(chatbotsTable)
+    .where(eq(chatbotsTable.organisation_id, orgId));
+};

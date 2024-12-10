@@ -93,7 +93,6 @@ export function ChatbotModal({ orgName, orgId }) {
         variant:"destructive"
       });
     }
-    // setOpen(false)
   }
 
   return (

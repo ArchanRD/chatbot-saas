@@ -7,6 +7,9 @@ import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 import CreateOrganisationModal from "./CreateOrganisationModal";
 import OrganisationCard from "./OrganisationCard";
+import { Skeleton } from "./ui/skeleton";
+import { signIn } from "next-auth/react";
+import { getOrganisationDetails } from "@/lib/utils";
 
 const ListOrganisations = ({ session }) => {
   const [loading, setloading] = useState<boolean>(false);
@@ -14,36 +17,48 @@ const ListOrganisations = ({ session }) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (session.status == "loading") {
-      setloading(true);
-    } else if (session.status == "unauthenticated") {
-      return redirect("/login");
-    } else {
-      setloading(false);
-
-      // fetch user's orgs
-      const fetchOrgsDetails = async () => {
-        try {
-          setloading(true);
-          const [org] = await Promise.all([
-            await fetchOrganisationByUserId(session.data.user.id),
-          ]);
-          setloading(false);
-          setOrgs(org);
-        } catch (error) {
-          setloading(false);
-          console.error("Failed to fetch organisations:", error);
+    const fetchOrgsDetails = async () => {
+      try {
+        setloading(true);
+        const org = await fetchOrganisationByUserId(session.data.user.id);
+        setOrgs(org);
+        const { error } = getOrganisationDetails();
+        if (error) {
+          localStorage.setItem("orgId", org[0].id);
+          localStorage.setItem("orgName", org[0].name);
         }
-      };
+
+        setloading(false);
+      } catch (error) {
+        console.error("Failed to fetch organisations:", error);
+      } finally {
+        setloading(false);
+      }
+    };
+
+    if (session.status === "loading") {
+      setloading(true);
+    } else if (session.status === "authenticated") {
       fetchOrgsDetails();
+    } else if (session.status === "unauthenticated") {
+      return redirect("/login");
     }
-    return () => {};
   }, [session.status]);
 
   if (loading) {
     return (
-      <div className="m-2 bg-white p-5 rounded-2xl flex items-center justify-center">
-        <p className="">Loading...</p>
+      <div className="m-2 bg-white p-5 rounded-2xl">
+        <Skeleton className="h-[40px] w-[650px] rounded-md" />
+        <div>
+          <Skeleton className="h-[20px] w-[650px] rounded-md mt-2" />
+          <Skeleton className="h-[50px] w-[650px] rounded-md mt-5" />
+          <div className="grid mt-5 grid-cols-2 grid-rows-3 gap-5">
+            <Skeleton className="h-[20px] w-[100px] rounded-md" />
+            <Skeleton className="h-[20px] w-[100px] rounded-md" />
+            <Skeleton className="h-[20px] w-[100px] rounded-md" />
+            <Skeleton className="h-[20px] w-[100px] rounded-md" />
+          </div>
+        </div>
       </div>
     );
   }

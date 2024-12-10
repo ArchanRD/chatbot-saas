@@ -34,7 +34,7 @@ export function Sidebar() {
         <div className="space-y-1">
           {[
             { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
-            { icon: BotMessageSquare, label: "Chatbot", link: "/chatbot" },
+            { icon: BotMessageSquare, label: "Chatbot", link: "/dashboard/chatbot" },
             { icon: Building2, label: "My Organisation", link: "" },
             { icon: Layers2, label: "Joined Organisations", link: "" },
           ].map((item) => (
