@@ -44,6 +44,7 @@ const Page = () => {
         try {
           setloading(true);
           const res = await fetchChatbotDetailsByOrgId(orgId!);
+          localStorage.setItem("chatbotId", res[0].id);
           setChatbot(res[0]);
           setloading(false);
         } catch (error) {

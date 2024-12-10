@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createOrganisation } from "@/lib/actions";
 import { redirect } from "next/navigation";
+import { generateApiKey } from "@/lib/utils";
 
 type Notification = {
   message: string;
@@ -28,6 +29,8 @@ const CreateOrganisationModal = ({ onClose, session }) => {
       return;
     }
     try {
+
+      //generate api key
       const result = await createOrganisation(
         orgName,
         session.data.user.id,

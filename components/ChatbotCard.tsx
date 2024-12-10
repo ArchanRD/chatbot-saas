@@ -49,7 +49,6 @@ const ChatbotCard = ({ chatbot }: { chatbot: Chatbot }) => {
                 {orgName}
               </div>
             </div>
-
             <hr className="my-4"/>
 
             <div className="flex flex-wrap items-center gap-2">

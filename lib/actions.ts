@@ -50,6 +50,14 @@ export const createOrganisation = async (orgName: string, userId: string) => {
   return { error: false, message: "Organisation created successfully" };
 };
 
+export const updateApiKey = async (apiKey: string) => {
+  await db.update(organisationTable).set({
+    api_key: apiKey,
+  });
+
+  return { error: false, message: "Sucess" };
+};
+
 export const fetchOrgDetailsById = async (orgId: string) => {
   return await db
     .select()

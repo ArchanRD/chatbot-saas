@@ -4,6 +4,13 @@ import { signOut, useSession } from 'next-auth/react'
 
 export function Header() {
   const session = useSession();
+  const handleLogout = async() =>{
+    localStorage.removeItem("orgId")
+    localStorage.removeItem("orgName")
+    localStorage.removeItem("chatbotId")
+
+    await signOut()
+  }
   return (
     <header className="h-16 border-b bg-white px-4 flex items-center justify-between">
       <div className="flex items-center flex-1 gap-4">
@@ -13,7 +20,7 @@ export function Header() {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant={'destructive'} onClick={()=>signOut()}>
+        <Button variant={'destructive'} onClick={handleLogout}>
           Logout
         </Button>
       </div>
