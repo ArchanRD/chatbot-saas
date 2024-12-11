@@ -11,7 +11,6 @@ import {
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { Users } from "@/db/schema";
-import { supabase } from "./supabaseClient";
 
 export const getUserByEmail = async (email: string) => {
   return await db.select().from(usersTable).where(eq(usersTable.email, email));

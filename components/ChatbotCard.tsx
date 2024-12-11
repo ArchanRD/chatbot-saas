@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "./ui/card";
-import { Bot, Clock, MoreVertical } from "lucide-react";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Bot } from "lucide-react";
 import { Chatbot } from "@/db/schema";
 import { getOrganisationDetails } from "@/lib/utils";
 

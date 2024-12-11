@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { X, Upload, FileIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,10 @@ export function UploadFile({ open, onOpenChange, orgDetails, chatbotId }) {
   const [file, setFile] = useState<File | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [isOrgDetailsAvailable, setIsOrgDetailsAvailable] = useState(true);
+
+  useEffect(() => {
+    setIsOrgDetailsAvailable(true);
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles?.[0]) {
@@ -43,7 +47,7 @@ export function UploadFile({ open, onOpenChange, orgDetails, chatbotId }) {
       try {
         setUploadLoading(true);
         const path = `uploads/${file.name}`;
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from("file uploads")
           .upload(path, file, {
             cacheControl: "3600",
@@ -52,6 +56,8 @@ export function UploadFile({ open, onOpenChange, orgDetails, chatbotId }) {
 
         if (error) {
           toast({
+            // @ts-expect-error: Supabase error object might not be typed correctly
+
             title: error.error,
             description: error.message,
             variant: "destructive",

@@ -23,7 +23,7 @@ export default function Home() {
 
   useEffect(() => {
     const getOrgDetails = async () => {
-      const org = await fetchOrganisationByUserId(session.data?.user.id!);
+      const org = await fetchOrganisationByUserId(session.data!.user.id);
       console.log(org);
       setOrgDetails(org[0]);
       const { error } = getOrganisationDetails();
@@ -42,7 +42,8 @@ export default function Home() {
 
   const handleCreateApiKey = async () => {
     setButtonLoading(true);
-    const apikey = generateApiKey(orgDetails?.id!);
+
+    const apikey = generateApiKey(orgDetails!.id);
     try {
       const res = await updateApiKey(apikey);
       if (!res.error) {
@@ -58,7 +59,7 @@ export default function Home() {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Failed",
         description: "Failed to update apikey. Please try again",

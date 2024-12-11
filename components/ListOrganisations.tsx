@@ -8,7 +8,6 @@ import { Plus } from "lucide-react";
 import CreateOrganisationModal from "./CreateOrganisationModal";
 import OrganisationCard from "./OrganisationCard";
 import { Skeleton } from "./ui/skeleton";
-import { signIn } from "next-auth/react";
 import { getOrganisationDetails } from "@/lib/utils";
 
 const ListOrganisations = ({ session }) => {
