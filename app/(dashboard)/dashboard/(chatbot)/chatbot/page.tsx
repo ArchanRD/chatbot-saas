@@ -1,6 +1,6 @@
 "use client";
 import { ChatbotModal } from "@/components/modals/ChatbotModal";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchChatbotDetailsByOrgId } from "@/lib/actions";
 import { getOrganisationDetails } from "@/lib/utils";
@@ -16,16 +16,22 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Chatbot } from "@/db/schema";
-import { Bot, Building2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import ChatbotCard from "@/components/ChatbotCard";
+import { UploadFile } from "@/components/UploadFile";
+import { Files } from "lucide-react";
+
+type OrgDetails = {
+  orgId: string;
+  orgName: string;
+};
 
 const Page = () => {
   const session = useSession();
   const [loading, setloading] = useState(false);
   const [chatbot, setChatbot] = useState<Chatbot>();
   const [isOrgIdSet, setIsOrgIdSet] = useState<boolean>(true);
-  const [orgDetails, setOrgDetails] = useState<string[]>([]);
+  const [orgDetails, setOrgDetails] = useState<OrgDetails>();
+  const [uploadFileOpen, setUploadFileOpen] = useState(false);
 
   useEffect(() => {
     const { orgId, orgName, error } = getOrganisationDetails();
@@ -33,7 +39,7 @@ const Page = () => {
       setIsOrgIdSet(false);
       return;
     } else {
-      setOrgDetails([orgId, orgName]);
+      setOrgDetails({ orgId: orgId, orgName: orgName});
     }
     if (session.status == "unauthenticated") {
       return redirect("/login");
@@ -102,10 +108,38 @@ const Page = () => {
             <p className="text-gray-500 w-96 text-center mb-5">
               You have not created any chatbot yet. Start by creating chatbot.
             </p>
-            <ChatbotModal orgName={orgDetails[1]} orgId={orgDetails[0]} />
+            <ChatbotModal orgName={orgDetails?.orgName} orgId={orgDetails?.orgId} />
           </div>
         </Card>
       )}
+
+      <div className="p-3">
+        <Card className="w-full max-w-xl !rounded-2xl !border-none !shadow-none">
+          <CardHeader className="font-poppins flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="">
+              <div className="flex items-center space-x-2">
+                <Files fontVariant="outline" className="text-xs font-normal" />
+                <h1 className="font-medium">Documents</h1>
+              </div>
+            </div>
+          </CardHeader>
+          <hr />
+          <CardContent className="space-y-4 p-6 font-poppins">
+            <p className="text-sm text-muted-foreground">
+              Upload file containing knowledge to provide context to your
+              chatbot. Accepted file types are txt and pdf.
+            </p>
+            <Button onClick={() => setUploadFileOpen(true)}>Upload file</Button>
+            <UploadFile
+              open={uploadFileOpen}
+              onOpenChange={setUploadFileOpen}
+              key={1}
+              orgDetails={orgDetails}
+              chatbotId={chatbot?.id}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

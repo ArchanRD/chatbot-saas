@@ -3,6 +3,7 @@ import { db } from "@/db/db";
 import {
   chatbotsTable,
   collaboratorsTable,
+  filesTable,
   invitationsTable,
   organisationTable,
   usersTable,
@@ -10,6 +11,7 @@ import {
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { Users } from "@/db/schema";
+import { supabase } from "./supabaseClient";
 
 export const getUserByEmail = async (email: string) => {
   return await db.select().from(usersTable).where(eq(usersTable.email, email));
@@ -174,4 +176,22 @@ export const fetchChatbotDetailsByOrgId = async (orgId: string) => {
     .select()
     .from(chatbotsTable)
     .where(eq(chatbotsTable.organisation_id, orgId));
+};
+
+export const uploadFileEntry = async (
+  filename: string,
+  orgId: string,
+  chatbotId: string,
+  path: string,
+  type: string
+) => {
+  await db.insert(filesTable).values({
+    name: filename,
+    type: type,
+    url: path,
+    chatbot_id: chatbotId,
+    organisation_id: orgId,
+  });
+
+  return { error: "false" };
 };

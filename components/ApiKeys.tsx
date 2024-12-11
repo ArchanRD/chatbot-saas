@@ -65,11 +65,9 @@ export function ApiKeys({ apiKey }) {
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={() =>
-              handleCopy("pk_live_ZPx1mmdcxn2yAaM+YtSjYG7554", "pub")
-            }
+            onClick={() => handleCopy(apiKey, "CONVERSY_API_KEY")}
           >
-            {copied === "pub" ? (
+            {copied === "CONVERSY_API_KEY" ? (
               <Check className="h-4 w-4" />
             ) : (
               <Copy className="h-4 w-4" />
