@@ -52,14 +52,16 @@ export function UploadFile({
     if (file) {
       try {
         setUploadLoading(true);
-        const path = `uploads/${file.name}`;
+        const filename = `${orgDetails.orgName}_${file.name}`;
+        const path = `uploads/${filename}`;
+        console.log(path)
+        console.log(filename)
         const { error } = await supabase.storage
           .from("file uploads")
           .upload(path, file, {
             cacheControl: "3600",
             upsert: false,
           });
-
         if (error) {
           toast({
             // @ts-expect-error: Supabase error object might not be typed correctly
@@ -72,7 +74,7 @@ export function UploadFile({
         }
 
         await uploadFileEntry(
-          file.name,
+          filename,
           orgDetails.orgId,
           chatbotId,
           path,

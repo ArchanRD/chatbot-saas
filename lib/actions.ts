@@ -156,12 +156,17 @@ export const createChatbot = async (
   orgId: string,
   welcome_mesg: string
 ) => {
-  return await db.insert(chatbotsTable).values({
-    name,
-    description: desc,
-    organisation_id: orgId,
-    welcome_mesg,
-  });
+  try {
+    return await db.insert(chatbotsTable).values({
+      name: name,
+      description: desc,
+      organisation_id: orgId,
+      welcome_mesg,
+    });
+  } catch (error) {
+    console.log("Error from actions", error);
+    return { error };
+  }
 };
 
 export const checkIfChatbotAlreadyCreated = async (orgId: string) => {

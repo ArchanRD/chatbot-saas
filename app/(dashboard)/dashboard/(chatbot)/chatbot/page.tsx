@@ -59,6 +59,7 @@ const Page = () => {
   };
 
   useEffect(() => {
+    console.log("first");
     const { orgId, orgName, error } = getOrganisationDetails();
     if (error || !orgId || !orgName) {
       setIsOrgIdSet(false);
@@ -71,11 +72,15 @@ const Page = () => {
       try {
         setloading(true);
         const res = await fetchChatbotDetailsByOrgId(orgId!);
+        if (res.length === 0) {
+          return;
+        }
         localStorage.setItem("chatbotId", res[0].id);
         setChatbot(res[0]);
-        setloading(false);
       } catch (error) {
         console.log(error);
+      } finally {
+        setloading(false);
       }
     }
 
@@ -86,10 +91,13 @@ const Page = () => {
     } else if (session.status === "authenticated") {
       getOrg();
     }
-  }, [session]);
+  }, [session, refreshTrigger]);
 
   useEffect(() => {
     async function getDocument() {
+      if (chatbot === undefined) {
+        return;
+      }
       try {
         const data = await getFileByChatbotId(chatbot!.id);
         if (data.length > 0) {
@@ -126,7 +134,7 @@ const Page = () => {
       });
 
       setFile({ id: null, name: null, path: null, type: null });
-      setUploadFileOpen(false)
+      setUploadFileOpen(false);
       handleRefresh();
     } catch (error) {
       console.log(error);
@@ -136,6 +144,7 @@ const Page = () => {
         variant: "destructive",
       });
     } finally {
+      setloading(false);
       setRemoveLoading(false);
     }
   };
@@ -188,6 +197,7 @@ const Page = () => {
               You have not created any chatbot yet. Start by creating chatbot.
             </p>
             <ChatbotModal
+              onRefresh={handleRefresh}
               orgName={orgDetails?.orgName}
               orgId={orgDetails?.orgId}
             />
@@ -195,7 +205,7 @@ const Page = () => {
         </Card>
       )}
 
-      <div className="p-3">
+      <div className="py-3 ">
         <Card className="w-full max-w-xl !rounded-2xl !border-none !shadow-none">
           <CardHeader className="font-poppins flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="">
@@ -203,6 +213,10 @@ const Page = () => {
                 <Files fontVariant="outline" className="text-xs font-normal" />
                 <h1 className="font-medium">Documents</h1>
               </div>
+              <p className="text-muted-foreground text-sm">
+                File name will be prefixed with organisation name to avoid filenames
+                redundancy.
+              </p>
             </div>
           </CardHeader>
           <hr />
@@ -216,7 +230,11 @@ const Page = () => {
                   <h1>{file.name}</h1>
                 </div>
                 <Button onClick={handleFileRemove} variant={"destructive"}>
-                  {removeLoading ? <Spinner className="text-white" /> : "Remove"}
+                  {removeLoading ? (
+                    <Spinner className="text-white" />
+                  ) : (
+                    "Remove"
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -226,7 +244,19 @@ const Page = () => {
                 Upload file containing knowledge to provide context to your
                 chatbot. Accepted file types are txt and pdf.
               </p>
-              <Button onClick={() => setUploadFileOpen(true)}>
+              <Button
+                onClick={() => {
+                  if (chatbot === undefined) {
+                    toast({
+                      title: "Error",
+                      description: "You need to create chatbot first",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setUploadFileOpen(true);
+                }}
+              >
                 Upload file
               </Button>
               <UploadFile

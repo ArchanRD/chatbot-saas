@@ -64,7 +64,7 @@ const defaultValues: Partial<ChatbotFormValues> = {
   orgId: "",
 };
 
-export function ChatbotModal({ orgName, orgId }) {
+export function ChatbotModal({ orgName, orgId, onRefresh }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast()
   const form = useForm<ChatbotFormValues>({
@@ -86,6 +86,7 @@ export function ChatbotModal({ orgName, orgId }) {
         title: "Chatbot created!",
         description: `${res.message}`,
       });
+      onRefresh()
     }else{
       toast({
         title: "Failed",

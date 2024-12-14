@@ -19,12 +19,17 @@ export default function Home() {
   const [isChatbotCreated, setIsChatbotCreated] = useState(false);
   const [orgDetails, setOrgDetails] = useState<Organisation>();
   const [buttonLoading, setButtonLoading] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
+    console.log("first");
     const getOrgDetails = async () => {
       const org = await fetchOrganisationByUserId(session.data!.user.id);
-      console.log(org);
+      if (org.length === 0) {
+        console.log("use effect returned");
+        return;
+      }
+
       setOrgDetails(org[0]);
       const { error } = getOrganisationDetails();
       if (error) {
@@ -44,6 +49,19 @@ export default function Home() {
   }, [session.status, refreshTrigger]);
 
   const handleCreateApiKey = async () => {
+    if (
+      orgDetails?.id === null ||
+      orgDetails?.id === undefined ||
+      orgDetails.id === ""
+    ) {
+      toast({
+        title: "Error",
+        description: "You need to create an organisation first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setButtonLoading(true);
 
     const apikey = generateApiKey(orgDetails!.id);
@@ -71,14 +89,17 @@ export default function Home() {
     } finally {
       setButtonLoading(false);
       router.refresh();
-      setRefreshTrigger((prev) => !prev);
+      setRefreshTrigger((prev) => prev + 1);
     }
   };
 
   return (
     <div className="">
       <div className="flex gap-2 flex-wrap">
-        <ListOrganisations session={session} />
+        <ListOrganisations
+          onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+          session={session}
+        />
         {/* chatbot card */}
         <div className="font-poppins p-5 bg-gray-50 flex-1 w-full rounded-xl my-3 mr-3">
           <div className="flex items-center justify-center h-full">
@@ -99,12 +120,15 @@ export default function Home() {
               </div>
             ) : (
               <div className="font-poppins flex items-center justify-center flex-col">
-                <p className="border border-slate-400 py-1 px-4 text-black rounded-full text-xs mb-5">chatbot created</p>
+                <p className="border border-slate-400 py-1 px-4 text-black rounded-full text-xs mb-5">
+                  chatbot created
+                </p>
                 <h1 className="mb-1 font-bold text-gray-800 text-3xl">
                   View chatbot details
                 </h1>
                 <p className="text-gray-500 w-96 text-center mb-5">
-                  Check out chatbot details. Upload files to provide knowledge base to your chatbot
+                  Check out chatbot details. Upload files to provide knowledge
+                  base to your chatbot
                 </p>
                 <Link href={"/dashboard/chatbot"}>
                   <Button size="default" className="text-base">

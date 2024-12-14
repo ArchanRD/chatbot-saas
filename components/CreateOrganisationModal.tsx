@@ -4,14 +4,14 @@ import React, { FormEvent, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createOrganisation } from "@/lib/actions";
-import { redirect } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
 
 type Notification = {
   message: string;
   type: "error" | "success" | "";
 };
 
-const CreateOrganisationModal = ({ onClose, session }) => {
+const CreateOrganisationModal = ({ onClose, session, onRefresh }) => {
   const [orgName, setorgName] = useState("");
   const [notification, setnotification] = useState<Notification>({
     message: "",
@@ -28,12 +28,9 @@ const CreateOrganisationModal = ({ onClose, session }) => {
       return;
     }
     try {
-
       //generate api key
-      const result = await createOrganisation(
-        orgName,
-        session.data.user.id,
-      );
+      const result = await createOrganisation(orgName, session.data.user.id);
+      console.log(result);
       if (result?.error) {
         setnotification({
           message: result.message,
@@ -43,8 +40,15 @@ const CreateOrganisationModal = ({ onClose, session }) => {
       }
 
       setnotification({ message: result.message, type: "success" });
-      return redirect("/dashboard")
-    } catch {
+      onClose();
+      onRefresh();
+      toast({
+        title: "Success",
+        description: "Organisation created successfully",
+      });
+      // return redirect("/dashboard");
+    } catch (error) {
+      console.log(error);
       setnotification({
         message: "Error while creating organisation",
         type: "error",

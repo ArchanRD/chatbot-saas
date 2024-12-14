@@ -9,17 +9,23 @@ import CreateOrganisationModal from "./CreateOrganisationModal";
 import OrganisationCard from "./OrganisationCard";
 import { Skeleton } from "./ui/skeleton";
 import { getOrganisationDetails } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
-const ListOrganisations = ({ session }) => {
+const ListOrganisations = ({ session, onRefresh }) => {
   const [loading, setloading] = useState<boolean>(false);
   const [orgs, setOrgs] = useState<Organisation[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     const fetchOrgsDetails = async () => {
       try {
         setloading(true);
         const org = await fetchOrganisationByUserId(session.data.user.id);
+        if (org.length === 0) {
+          return;
+        }
+
         setOrgs(org);
         const { error } = getOrganisationDetails();
         if (error) {
@@ -30,6 +36,12 @@ const ListOrganisations = ({ session }) => {
         setloading(false);
       } catch (error) {
         console.error("Failed to fetch organisations:", error);
+        toast({
+          title: "Error",
+          description:
+            "Unable to fetch organisation details. Please try again.",
+          variant: "destructive",
+        });
       } finally {
         setloading(false);
       }
@@ -42,7 +54,12 @@ const ListOrganisations = ({ session }) => {
     } else if (session.status === "unauthenticated") {
       return redirect("/login");
     }
-  }, [session.status]);
+  }, [session.status, refresh]);
+
+  const handleRefresh = () => {
+    setRefresh((prev) => prev + 1);
+    onRefresh();
+  };
 
   if (loading) {
     return (
@@ -97,6 +114,7 @@ const ListOrganisations = ({ session }) => {
         {showModal && (
           <CreateOrganisationModal
             session={session}
+            onRefresh={() => handleRefresh()}
             onClose={() => setShowModal(false)}
           />
         )}

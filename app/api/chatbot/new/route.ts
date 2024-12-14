@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
-  console.log(data);
+
   try {
     const getOrgsByOrgId = await checkIfChatbotAlreadyCreated(data.orgId);
+
     if (getOrgsByOrgId.length == 0) {
       await createChatbot(
         data.name,
