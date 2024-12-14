@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const session = useSession();
   const router = useRouter();
-  const [chatbot, setChatbot] = useState([]);
+  const [isChatbotCreated, setIsChatbotCreated] = useState(false);
   const [orgDetails, setOrgDetails] = useState<Organisation>();
   const [buttonLoading, setButtonLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -31,13 +31,16 @@ export default function Home() {
         localStorage.setItem("orgId", org[0].id);
         localStorage.setItem("orgName", org[0].name);
       }
+
+      const chatbotId = localStorage.getItem("chatbotId");
+      if (chatbotId) {
+        setIsChatbotCreated(true);
+      }
     };
 
     if (session.status === "authenticated") {
       getOrgDetails();
     }
-
-    setChatbot([]);
   }, [session.status, refreshTrigger]);
 
   const handleCreateApiKey = async () => {
@@ -79,7 +82,7 @@ export default function Home() {
         {/* chatbot card */}
         <div className="font-poppins p-5 bg-gray-50 flex-1 w-full rounded-xl my-3 mr-3">
           <div className="flex items-center justify-center h-full">
-            {chatbot.length == 0 ? (
+            {!isChatbotCreated ? (
               <div className="font-poppins flex items-center justify-center flex-col">
                 <h1 className="mb-1 font-bold text-gray-800 text-3xl">
                   Create your first chatbot!
@@ -95,7 +98,20 @@ export default function Home() {
                 </Link>
               </div>
             ) : (
-              "chatbot created"
+              <div className="font-poppins flex items-center justify-center flex-col">
+                <p className="border border-slate-400 py-1 px-4 text-black rounded-full text-xs mb-5">chatbot created</p>
+                <h1 className="mb-1 font-bold text-gray-800 text-3xl">
+                  View chatbot details
+                </h1>
+                <p className="text-gray-500 w-96 text-center mb-5">
+                  Check out chatbot details. Upload files to provide knowledge base to your chatbot
+                </p>
+                <Link href={"/dashboard/chatbot"}>
+                  <Button size="default" className="text-base">
+                    View chatbot
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </div>

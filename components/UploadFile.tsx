@@ -17,7 +17,13 @@ import { redirect } from "next/navigation";
 import { uploadFileEntry } from "@/lib/actions";
 import { DialogDescription } from "@radix-ui/react-dialog";
 
-export function UploadFile({ open, onOpenChange, orgDetails, chatbotId }) {
+export function UploadFile({
+  open,
+  onOpenChange,
+  orgDetails,
+  chatbotId,
+  onRefresh,
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [isOrgDetailsAvailable, setIsOrgDetailsAvailable] = useState(true);
@@ -76,6 +82,8 @@ export function UploadFile({ open, onOpenChange, orgDetails, chatbotId }) {
           title: "Success",
           description: "File uploaded successfully",
         });
+
+        onRefresh();
       } catch (error) {
         console.log(error);
       } finally {

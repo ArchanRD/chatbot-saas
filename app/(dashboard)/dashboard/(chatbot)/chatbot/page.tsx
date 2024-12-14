@@ -2,7 +2,11 @@
 import { ChatbotModal } from "@/components/modals/ChatbotModal";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchChatbotDetailsByOrgId } from "@/lib/actions";
+import {
+  fetchChatbotDetailsByOrgId,
+  getFileByChatbotId,
+  removeFileById,
+} from "@/lib/actions";
 import { getOrganisationDetails } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -18,11 +22,20 @@ import { Button } from "@/components/ui/button";
 import { Chatbot } from "@/db/schema";
 import ChatbotCard from "@/components/ChatbotCard";
 import { UploadFile } from "@/components/UploadFile";
-import { Files } from "lucide-react";
+import { Files, FileText } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { Spinner } from "@/components/ui/spinner";
 
 type OrgDetails = {
   orgId: string;
   orgName: string;
+};
+
+type File = {
+  id: string | null;
+  path: string | null;
+  name: string | null;
+  type: string | null;
 };
 
 const Page = () => {
@@ -32,6 +45,18 @@ const Page = () => {
   const [isOrgIdSet, setIsOrgIdSet] = useState<boolean>(true);
   const [orgDetails, setOrgDetails] = useState<OrgDetails>();
   const [uploadFileOpen, setUploadFileOpen] = useState(false);
+  const [file, setFile] = useState<File>({
+    id: null,
+    path: null,
+    name: null,
+    type: null,
+  });
+  const [removeLoading, setRemoveLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   useEffect(() => {
     const { orgId, orgName, error } = getOrganisationDetails();
@@ -39,27 +64,81 @@ const Page = () => {
       setIsOrgIdSet(false);
       return;
     } else {
-      setOrgDetails({ orgId: orgId, orgName: orgName});
+      setOrgDetails({ orgId: orgId, orgName: orgName });
     }
-    if (session.status == "unauthenticated") {
-      return redirect("/login");
-    } else if (session.status == "loading") {
-      setloading(true);
-    } else {
-      async function getOrg() {
-        try {
-          setloading(true);
-          const res = await fetchChatbotDetailsByOrgId(orgId!);
-          localStorage.setItem("chatbotId", res[0].id);
-          setChatbot(res[0]);
-          setloading(false);
-        } catch (error) {
-          console.log(error);
-        }
+
+    async function getOrg() {
+      try {
+        setloading(true);
+        const res = await fetchChatbotDetailsByOrgId(orgId!);
+        localStorage.setItem("chatbotId", res[0].id);
+        setChatbot(res[0]);
+        setloading(false);
+      } catch (error) {
+        console.log(error);
       }
+    }
+
+    if (session.status === "unauthenticated") {
+      return redirect("/login");
+    } else if (session.status === "loading") {
+      setloading(true);
+    } else if (session.status === "authenticated") {
       getOrg();
     }
   }, [session]);
+
+  useEffect(() => {
+    async function getDocument() {
+      try {
+        const data = await getFileByChatbotId(chatbot!.id);
+        if (data.length > 0) {
+          setFile({
+            id: data[0].id,
+            name: data[0].name,
+            path: data[0].url,
+            type: data[0].type,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getDocument();
+  }, [chatbot?.id, refreshTrigger]);
+
+  const handleFileRemove = async () => {
+    setRemoveLoading(true);
+    try {
+      const response = await removeFileById(file.id!, file.path!);
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: response.message,
+      });
+
+      setFile({ id: null, name: null, path: null, type: null });
+      setUploadFileOpen(false)
+      handleRefresh();
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Internal error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setRemoveLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -94,7 +173,7 @@ const Page = () => {
   }
 
   return (
-    <div className="bg-gray-200 h-screen p-3">
+    <div className="bg-gray-200 h-auto p-3">
       {chatbot ? (
         <div className="p-3 flex-1">
           <ChatbotCard chatbot={chatbot} />
@@ -108,7 +187,10 @@ const Page = () => {
             <p className="text-gray-500 w-96 text-center mb-5">
               You have not created any chatbot yet. Start by creating chatbot.
             </p>
-            <ChatbotModal orgName={orgDetails?.orgName} orgId={orgDetails?.orgId} />
+            <ChatbotModal
+              orgName={orgDetails?.orgName}
+              orgId={orgDetails?.orgId}
+            />
           </div>
         </Card>
       )}
@@ -124,20 +206,39 @@ const Page = () => {
             </div>
           </CardHeader>
           <hr />
-          <CardContent className="space-y-4 p-6 font-poppins">
-            <p className="text-sm text-muted-foreground">
-              Upload file containing knowledge to provide context to your
-              chatbot. Accepted file types are txt and pdf.
-            </p>
-            <Button onClick={() => setUploadFileOpen(true)}>Upload file</Button>
-            <UploadFile
-              open={uploadFileOpen}
-              onOpenChange={setUploadFileOpen}
-              key={1}
-              orgDetails={orgDetails}
-              chatbotId={chatbot?.id}
-            />
-          </CardContent>
+          {file.name !== null ? (
+            <CardContent className="space-y-4 p-6 font-poppins">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                    <FileText />
+                  </div>
+                  <h1>{file.name}</h1>
+                </div>
+                <Button onClick={handleFileRemove} variant={"destructive"}>
+                  {removeLoading ? <Spinner className="text-white" /> : "Remove"}
+                </Button>
+              </div>
+            </CardContent>
+          ) : (
+            <CardContent className="space-y-4 p-6 font-poppins">
+              <p className="text-sm text-muted-foreground">
+                Upload file containing knowledge to provide context to your
+                chatbot. Accepted file types are txt and pdf.
+              </p>
+              <Button onClick={() => setUploadFileOpen(true)}>
+                Upload file
+              </Button>
+              <UploadFile
+                open={uploadFileOpen}
+                onOpenChange={setUploadFileOpen}
+                key={1}
+                orgDetails={orgDetails}
+                chatbotId={chatbot?.id}
+                onRefresh={handleRefresh}
+              />
+            </CardContent>
+          )}
         </Card>
       </div>
     </div>

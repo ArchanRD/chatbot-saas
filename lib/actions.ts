@@ -11,6 +11,7 @@ import {
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { Users } from "@/db/schema";
+import { supabase } from "./supabaseClient";
 
 export const getUserByEmail = async (email: string) => {
   return await db.select().from(usersTable).where(eq(usersTable.email, email));
@@ -193,4 +194,23 @@ export const uploadFileEntry = async (
   });
 
   return { error: "false" };
+};
+
+export const getFileByChatbotId = async (chatbotId: string) => {
+  return await db
+    .select()
+    .from(filesTable)
+    .where(eq(filesTable.chatbot_id, chatbotId));
+};
+
+export const removeFileById = async (fileId: string, path: string) => {
+  const res = await db.delete(filesTable).where(eq(filesTable.id, fileId));
+
+  const response = await supabase.storage.from("file uploads").remove([path]);
+
+  if (res.rowCount == 1 && response.error === null) {
+    return { error: false, message: "File removed successfully" };
+  }
+
+  return { error: true, message: "Failed to remove file" };
 };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClientAuthProvider } from "@/context/ClientAuthProvider";
+import NextTopLoader from "nextjs-toploader"
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,7 +28,9 @@ export default function RootLayout({
         />
       </head>
       <ClientAuthProvider>
-        <body>{children}</body>
+        <body>
+          <NextTopLoader color="#000" />
+          {children}</body>
       </ClientAuthProvider>
     </html>
   );
