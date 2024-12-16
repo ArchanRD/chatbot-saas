@@ -39,7 +39,6 @@ const CreateOrganisationForm = () => {
       const result: Result = await createOrganisation(
         orgName,
         userID!,
-        "admin"
       );
       if (typeof result == "object" && "error" in result) {
         if (result?.error) {

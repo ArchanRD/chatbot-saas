@@ -13,7 +13,7 @@ export const usersTable = pgTable("users", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
-  email: varchar("email", { length: 255 }).notNull(),
+  email: text("email").notNull().unique(),
   name: text("name").notNull().default("User"),
   password: varchar("password").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
@@ -26,8 +26,8 @@ export const organisationTable = pgTable("organisation", {
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
   user_id: uuid("user_id").references(() => usersTable.id),
+  api_key: text("api_key"),
   name: text("name").notNull(),
-  role: varchar("role").notNull().default("user"),
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),
   settings: jsonb("settings").notNull().default({}),
@@ -45,8 +45,7 @@ export const chatbotsTable = pgTable("chatbots", {
   organisation_id: uuid("organisation_id").references(
     () => organisationTable.id
   ),
-  api_key: varchar("api_key").notNull().unique(),
-  settings: jsonb("settings").notNull().default({}),
+  welcome_mesg: text("welcome_mesg").default("Hey! How can I help you?"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -71,9 +70,22 @@ export const collaboratorsTable = pgTable("collaborators", {
   id: uuid("collab_id")
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
-  user_id: uuid("user_id").references(() => usersTable.id),
+  user_email: text("user_email").references(() => usersTable.email),
   org_id: uuid("org_id").references(() => organisationTable.id),
+  role: text("role").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const invitationsTable = pgTable("invitations", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v4()`),
+  email: text("email").notNull(),
+  orgId: uuid("orgId").references(() => organisationTable.id),
+  token: text("token"),
+  role: text("role"),
+  expires_at: timestamp("expires_at").notNull(),
+  status: text("status").notNull().default("PENDING"),
 });
 
 export type Users = typeof usersTable.$inferSelect;
@@ -81,3 +93,4 @@ export type Organisation = typeof organisationTable.$inferSelect;
 export type Chatbot = typeof chatbotsTable.$inferSelect;
 export type Files = typeof filesTable.$inferSelect;
 export type Collaborator = typeof collaboratorsTable.$inferSelect;
+export type Invitation = typeof invitationsTable.$inferSelect;

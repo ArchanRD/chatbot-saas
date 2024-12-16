@@ -50,6 +50,83 @@
       "when": 1733131853922,
       "tag": "0006_little_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1733295538077,
+      "tag": "0007_military_lionheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1733296074823,
+      "tag": "0008_lying_tombstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1733298099120,
+      "tag": "0009_loud_lake",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1733298285890,
+      "tag": "0010_flat_sister_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1733298414917,
+      "tag": "0011_unusual_energizer",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1733298565709,
+      "tag": "0012_bouncy_nomad",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1733326799578,
+      "tag": "0013_nosy_baron_zemo",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1733326854891,
+      "tag": "0014_cool_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1733334272517,
+      "tag": "0015_lovely_sunspot",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1733590203492,
+      "tag": "0016_pale_crusher_hogan",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1733673138951,
+      "tag": "0017_lucky_squadron_sinister",
+      "breakpoints": true
     }
   ]
 }

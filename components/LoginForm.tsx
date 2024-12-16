@@ -31,7 +31,7 @@ const LoginForm = () => {
     if (result?.error) {
       setNotification({ message: "Invalid credentials", type: "error" });
     } else {
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     }
   };
 
