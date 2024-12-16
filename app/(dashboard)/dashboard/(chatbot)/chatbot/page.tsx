@@ -3,6 +3,7 @@ import { ChatbotModal } from "@/components/modals/ChatbotModal";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  downloadFile,
   fetchChatbotDetailsByOrgId,
   getFileByChatbotId,
   removeFileById,
@@ -52,6 +53,7 @@ const Page = () => {
     type: null,
   });
   const [removeLoading, setRemoveLoading] = useState(false);
+  const [downloadLoading, setdownloadLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleRefresh = () => {
@@ -181,6 +183,23 @@ const Page = () => {
     );
   }
 
+  const handleFileDownload = async () => {
+    setdownloadLoading(true);
+    try {
+      const response = await downloadFile(file.path!);
+      console.log(response);
+      const url = URL.createObjectURL(response.data!);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name!;
+      a.click();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setdownloadLoading(false);
+    }
+  };
+
   return (
     <div className="bg-gray-200 h-auto p-3">
       {chatbot ? (
@@ -214,28 +233,41 @@ const Page = () => {
                 <h1 className="font-medium">Documents</h1>
               </div>
               <p className="text-muted-foreground text-sm">
-                File name will be prefixed with organisation name to avoid filenames
-                redundancy.
+                File name will be prefixed with organisation name to avoid
+                filenames redundancy.
               </p>
             </div>
           </CardHeader>
           <hr />
           {file.name !== null ? (
             <CardContent className="space-y-4 p-6 font-poppins">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="">
+                <div className="flex items-center gap-2 mb-5">
                   <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
                     <FileText />
                   </div>
-                  <h1>{file.name}</h1>
+                  <h1 className="break-all">{file.name}</h1>
                 </div>
-                <Button onClick={handleFileRemove} variant={"destructive"}>
-                  {removeLoading ? (
-                    <Spinner className="text-white" />
-                  ) : (
-                    "Remove"
-                  )}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={handleFileDownload}
+                    variant={"default"}
+                    disabled={downloadLoading}
+                  >
+                    {downloadLoading ? (
+                      <Spinner className="text-white" />
+                    ) : (
+                      "Download"
+                    )}
+                  </Button>
+                  <Button onClick={handleFileRemove} variant={"destructive"}>
+                    {removeLoading ? (
+                      <Spinner className="text-white" />
+                    ) : (
+                      "Remove"
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           ) : (

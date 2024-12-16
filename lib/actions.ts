@@ -219,3 +219,15 @@ export const removeFileById = async (fileId: string, path: string) => {
 
   return { error: true, message: "Failed to remove file" };
 };
+
+export const downloadFile = async (path: string) => {
+  const { data, error } = await supabase.storage
+    .from("file uploads")
+    .download(path);
+
+  if (error) {
+    return { error: true, messsag: error.message };
+  }
+
+  return { error: false, data: data };
+};
