@@ -227,7 +227,7 @@ class ChatBubble {
       const message = input.value.trim();
       if (message) {
         this.addMessage(message, "user");
-        const request = await fetch(`http://localhost:3000/api/chat`, {
+        const request = await fetch(`/api/chat`, {
           body: JSON.stringify(message),
           method: "POST",
           headers: {
