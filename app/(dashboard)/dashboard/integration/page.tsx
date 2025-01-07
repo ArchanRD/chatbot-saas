@@ -82,7 +82,7 @@ const frameworks = [
   },
 ];
 
-const page = () => {
+const Page = () => {
   const [activeFramework, setActiveFramework] = useState(frameworks[0]);
   const [copied, setCopied] = useState(false);
 
@@ -158,4 +158,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

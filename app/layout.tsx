@@ -28,6 +28,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <Script
+        id="conversy-chatbot-script"
           dangerouslySetInnerHTML={{
             __html: `
               window.__CHAT_CONFIG__ = {
