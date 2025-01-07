@@ -225,17 +225,17 @@ class ChatBubble {
 
     const sendMessage = async () => {
       const message = input.value.trim();
+      input.value = "";
       if (message) {
         this.addMessage(message, "user");
-        const request = await fetch(`/api/chat`, {
-          body: JSON.stringify(message),
+        const request = await fetch(`http://localhost:3000/api/chat`, {
+          body: JSON.stringify({message, companyId:"dde0eaf4-56da-49e4-b418-11b2cbb5bbfa"}),
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
         });
         const response = await request.json();
-        input.value = "";
         this.addMessage(response.message, "bot");
       }
     };

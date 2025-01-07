@@ -231,3 +231,20 @@ export const downloadFile = async (path: string) => {
 
   return { error: false, data: data };
 };
+
+export const getFileIdByOrgId = async (orgId: string) => {
+  return await db
+    .select()
+    .from(filesTable)
+    .where(eq(filesTable.organisation_id, orgId));
+};
+
+export const getSupabaseBucket = async (
+  bucketName: string,
+  filePath: string
+) => {
+  console.log(filePath);
+  return supabase.storage
+    .from(bucketName)
+    .getPublicUrl(filePath);
+};

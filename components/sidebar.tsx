@@ -119,7 +119,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="w-64 h-screen bg-white border-r flex flex-col">
+    <div className="w-64 fixed h-full bg-white border-r flex flex-col">
       <Link href={"/dashboard"} className="p-4 flex items-center gap-1">
         <img src="/logo.png" className="w-10" alt="" />
         <span className="font-semibold text-lg">Conversy</span>
