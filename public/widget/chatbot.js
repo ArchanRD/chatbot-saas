@@ -229,7 +229,7 @@ class ChatBubble {
       if (message) {
         this.addMessage(message, "user");
         const request = await fetch(`http://localhost:3000/api/chat`, {
-          body: JSON.stringify({message, companyId:"dde0eaf4-56da-49e4-b418-11b2cbb5bbfa"}),
+          body: JSON.stringify({ message, apiKey: this.config.apiKey }),
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               window.__CHAT_CONFIG__ = {
-                apiKey: '${process.env.NEXT_PUBLIC_CHAT_API_KEY || ""}',
+                apiKey: 'dde0eaf4-56da-49e4-b418-11b2cbb5bbfa-3608032a0689fe6af77de654bbbc63cfaef9ad46909b7a0899e67db3051beb06-1736309454120',
                 theme: {
                   primary: '#2563eb',
                   secondary: '#ffffff',

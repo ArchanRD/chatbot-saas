@@ -66,7 +66,7 @@ export default function Home() {
 
     const apikey = generateApiKey(orgDetails!.id);
     try {
-      const res = await updateApiKey(apikey);
+      const res = await updateApiKey(apikey, orgDetails.id);
       if (!res.error) {
         toast({
           title: "Success",

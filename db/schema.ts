@@ -26,7 +26,7 @@ export const organisationTable = pgTable("organisation", {
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
   user_id: uuid("user_id").references(() => usersTable.id),
-  api_key: text("api_key"),
+  api_key: text("api_key").unique(),
   name: text("name").notNull(),
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),

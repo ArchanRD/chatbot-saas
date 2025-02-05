@@ -52,10 +52,13 @@ export const createOrganisation = async (orgName: string, userId: string) => {
   return { error: false, message: "Organisation created successfully" };
 };
 
-export const updateApiKey = async (apiKey: string) => {
-  await db.update(organisationTable).set({
-    api_key: apiKey,
-  });
+export const updateApiKey = async (apiKey: string, orgId: string) => {
+  await db
+    .update(organisationTable)
+    .set({
+      api_key: apiKey,
+    })
+    .where(eq(organisationTable.id, orgId));
 
   return { error: false, message: "Sucess" };
 };
@@ -232,7 +235,7 @@ export const downloadFile = async (path: string) => {
   return { error: false, data: data };
 };
 
-export const getFileIdByOrgId = async (orgId: string) => {
+export const getFilePathByOrgId = async (orgId: string) => {
   return await db
     .select()
     .from(filesTable)
@@ -244,7 +247,18 @@ export const getSupabaseBucket = async (
   filePath: string
 ) => {
   console.log(filePath);
-  return supabase.storage
-    .from(bucketName)
-    .getPublicUrl(filePath);
+  return supabase.storage.from(bucketName).getPublicUrl(filePath);
+};
+
+export const fetchFileByApiKey = async (apiKey: string) => {
+  const orgData = await db
+    .select({ orgId: organisationTable.id })
+    .from(organisationTable)
+    .where(eq(organisationTable.api_key, apiKey));
+
+  if (orgData.length === 0) {
+    return { orgId: null };
+  }
+
+  return orgData[0];
 };

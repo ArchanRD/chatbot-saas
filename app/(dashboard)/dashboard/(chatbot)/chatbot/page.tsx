@@ -61,7 +61,6 @@ const Page = () => {
   };
 
   useEffect(() => {
-    console.log("first");
     const { orgId, orgName, error } = getOrganisationDetails();
     if (error || !orgId || !orgName) {
       setIsOrgIdSet(false);
