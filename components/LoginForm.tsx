@@ -1,5 +1,6 @@
 "use client";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import React, { FormEvent, useState } from "react";
 
 type Notification = {
@@ -20,6 +21,8 @@ const LoginForm = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    console.log(email, password)
+    
     setLoading(true);
     const result = await signIn("credentials", {
       email,
@@ -36,64 +39,78 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex items-center h-screen w-full">
-      <div className="w-full bg-white rounded shadow-lg p-8 m-4 md:max-w-sm md:mx-auto">
+    <div className="flex min-h-screen font-inter flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <img
+            alt="Your Company"
+            src="/logo.png"
+            className="mx-auto h-10 w-auto"
+          />
+          <h2 className="mt-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+            Sign in to your account
+          </h2>
+        </div>
+
+
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         {notification.type == "error" && (
-          <p className="text-red-500">{notification?.message}</p>
+          <p className="text-red-500 text-center">{notification?.message}</p>
         )}
-        <span className="block w-full text-xl uppercase font-bold mb-4">
-          Login
-        </span>
-        <form onSubmit={handleSubmit} className="mb-4" method="post">
-          <div className="mb-4 md:w-full">
-            <label htmlFor="email" className="block text-xs mb-1">
-              Email
-            </label>
-            <input
-              className="w-full border rounded p-2 outline-none focus:shadow-outline"
-              type="email"
-              name="email"
-              id="email"
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Username or Email"
-              required
-            />
-          </div>
-          <div className="mb-6 md:w-full">
-            <label htmlFor="password" className="block text-xs mb-1">
-              Password
-            </label>
-            <input
-              className="w-full border rounded p-2 outline-none focus:shadow-outline"
-              type="password"
-              name="password"
-              id="password"
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              required
-            />
-          </div>
-          <button
-            className="bg-green-500 hover:bg-green-700 text-white uppercase text-sm font-semibold px-4 py-2 rounded disabled:bg-green-300"
-            disabled={loading}
-          >
-            {loading ? "Loading..." : "Login"}
-          </button>
-        </form>
-        <a className="text-blue-700 text-center text-sm" href="/register">
-          Create an account
-        </a>
-        <div>
-          <button
-            className="bg-black text-white px-4 py-2 rounded-lg"
-            onClick={() => signOut()}
-          >
-            Logout
-          </button>
-          {session && <div>Email in session:{session.data?.user.email}</div>}
+          <form onSubmit={handleSubmit} action="#" method="POST" className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
+                Email address
+              </label>
+              <div className="mt-2">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  onChange={(e)=>setEmail(e.target.value)}
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
+                  Password
+                </label>
+              </div>
+              <div className="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  onChange={(e)=>setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className={`"flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" + ${loading ? " disabled:bg-indigo-300 cursor-not-allowed" : ""}`}
+              >
+                Sign in
+              </button>
+            </div>
+          </form>
+        <p className="mt-5">
+          Dont have an account?{" "}
+          <Link href="/register" className="text-indigo-600 hover:underline">
+            Register
+          </Link>
+        </p>
         </div>
       </div>
-    </div>
   );
 };
 

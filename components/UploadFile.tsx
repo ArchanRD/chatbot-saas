@@ -54,6 +54,8 @@ export function UploadFile({
         setUploadLoading(true);
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("orgId", orgDetails.orgId)
+        formData.append("chatbotId", chatbotId)
 
         const request = await fetch(
           `${process.env.NEXT_PUBLIC_APP_URL}/api/chatbot/uploadFile`,
@@ -72,7 +74,6 @@ export function UploadFile({
         }
 
         const result = await request.json();
-        console.log(result);
 
         toast({
           title: "Success",

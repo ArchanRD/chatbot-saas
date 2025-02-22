@@ -2,44 +2,45 @@
 import { ApiKeys } from "@/components/ApiKeys";
 import ListOrganisations from "@/components/ListOrganisations";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Organisation } from "@/db/schema";
 import { toast } from "@/hooks/use-toast";
 import { fetchOrganisationByUserId, updateApiKey } from "@/lib/actions";
-import { generateApiKey, getOrganisationDetails } from "@/lib/utils";
+import { generateApiKey } from "@/lib/utils";
 import { TriangleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function Home() {
+type Org = {
+  id: string;
+  name: string;
+  api_key: string | null;
+  plan: string;
+  status: string;
+  created_at: Date;
+};
+
+export default function Dashboard() {
   const session = useSession();
   const router = useRouter();
   const [isChatbotCreated, setIsChatbotCreated] = useState(false);
-  const [orgDetails, setOrgDetails] = useState<Organisation>();
+  const [orgDetails, setOrgDetails] = useState<Org | null>(null);
   const [buttonLoading, setButtonLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("first");
     const getOrgDetails = async () => {
+      setLoading(true)
       const org = await fetchOrganisationByUserId(session.data!.user.id);
-      if (org.length === 0) {
-        console.log("use effect returned");
-        return;
-      }
-
-      setOrgDetails(org[0]);
-      const { error } = getOrganisationDetails();
-      if (error) {
-        localStorage.setItem("orgId", org[0].id);
-        localStorage.setItem("orgName", org[0].name);
-      }
-
-      const chatbotId = localStorage.getItem("chatbotId");
-      if (chatbotId) {
-        setIsChatbotCreated(true);
+      setLoading(false)
+      if (org.length > 0) {
+        setOrgDetails(org[0]);
+      } else {
+        setOrgDetails(null);
       }
     };
 
@@ -96,10 +97,26 @@ export default function Home() {
   return (
     <div className="">
       <div className="flex gap-2 flex-wrap">
-        <ListOrganisations
-          onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
-          session={session}
-        />
+        {!loading ? (
+          <ListOrganisations
+            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+            orgs={orgDetails}
+          />
+        ) : (
+          <div className="m-2 bg-white p-5 rounded-2xl">
+            <Skeleton className="h-[40px] w-[650px] rounded-md" />
+            <div>
+              <Skeleton className="h-[20px] w-[650px] rounded-md mt-2" />
+              <Skeleton className="h-[50px] w-[650px] rounded-md mt-5" />
+              <div className="grid mt-5 grid-cols-2 grid-rows-3 gap-5">
+                <Skeleton className="h-[20px] w-[100px] rounded-md" />
+                <Skeleton className="h-[20px] w-[100px] rounded-md" />
+                <Skeleton className="h-[20px] w-[100px] rounded-md" />
+                <Skeleton className="h-[20px] w-[100px] rounded-md" />
+              </div>
+            </div>
+          </div>
+        )}
         {/* chatbot card */}
         <div className="font-poppins p-5 bg-gray-50 flex-1 w-full rounded-xl my-3 mr-3">
           <div className="flex items-center justify-center h-full">

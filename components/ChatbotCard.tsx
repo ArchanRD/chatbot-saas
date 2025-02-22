@@ -3,17 +3,9 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Bot } from "lucide-react";
 import { Chatbot } from "@/db/schema";
-import { getOrganisationDetails } from "@/lib/utils";
 
 const ChatbotCard = ({ chatbot }: { chatbot: Chatbot }) => {
   const [orgName, setOrgName] = useState<string>("");
-
-  useEffect(() => {
-    const { orgId, orgName, error } = getOrganisationDetails();
-    if (!error && chatbot.organisation_id === orgId) {
-      setOrgName(orgName!);
-    }
-  }, []);
 
   return (
     <div className="flex gap-5 items-center font-poppins">

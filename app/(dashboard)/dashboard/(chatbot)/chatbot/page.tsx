@@ -8,7 +8,6 @@ import {
   getFileByChatbotId,
   removeFileById,
 } from "@/lib/actions";
-import { getOrganisationDetails } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -61,27 +60,22 @@ const Page = () => {
   };
 
   useEffect(() => {
-    const { orgId, orgName, error } = getOrganisationDetails();
-    if (error || !orgId || !orgName) {
-      setIsOrgIdSet(false);
-      return;
-    } else {
-      setOrgDetails({ orgId: orgId, orgName: orgName });
-    }
+    async function getChatbotDetails() {
+      const orgId = session.data?.user.orgId;
+      const orgName = session.data?.user.orgName;
+      if (!orgId || !orgName) {
+        setIsOrgIdSet(false);
+      }
 
-    async function getOrg() {
+      setOrgDetails({ orgId: orgId!, orgName: orgName! });
+
       try {
-        setloading(true);
         const res = await fetchChatbotDetailsByOrgId(orgId!);
-        if (res.length === 0) {
-          return;
+        if (res.length > 0) {
+          setChatbot(res[0]);
         }
-        localStorage.setItem("chatbotId", res[0].id);
-        setChatbot(res[0]);
       } catch (error) {
         console.log(error);
-      } finally {
-        setloading(false);
       }
     }
 
@@ -90,7 +84,8 @@ const Page = () => {
     } else if (session.status === "loading") {
       setloading(true);
     } else if (session.status === "authenticated") {
-      getOrg();
+      getChatbotDetails();
+      setloading(false);
     }
   }, [session, refreshTrigger]);
 

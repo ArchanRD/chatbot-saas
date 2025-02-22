@@ -28,6 +28,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.4",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.462.0",
     "nanoid": "^5.0.9",
     "next": "15.0.3",
@@ -47,6 +48,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.4",
     "@types/pg": "^8.11.10",
