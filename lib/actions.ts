@@ -3,6 +3,7 @@ import { db } from "@/db/db";
 import {
   chatbotsTable,
   collaboratorsTable,
+  embeddingsTable,
   filesTable,
   invitationsTable,
   organisationTable,
@@ -44,18 +45,24 @@ export const createOrganisation = async (orgName: string, userId: string) => {
     return { error: true, message: "You have already created an organisation" };
   }
 
-  await db.insert(organisationTable).values({
-    name: orgName,
-    user_id: userId,
-    plan: "free",
-  });
-  return { error: false, message: "Organisation created successfully" };
+  const orgDetails = await db
+    .insert(organisationTable)
+    .values({
+      name: orgName,
+      user_id: userId,
+      plan: "free",
+    })
+    .returning({ id: organisationTable.id, orgName: organisationTable.name });
+  return { error: false, message: "Organisation created successfully", orgDetails };
 };
 
-export const updateApiKey = async (apiKey: string) => {
-  await db.update(organisationTable).set({
-    api_key: apiKey,
-  });
+export const updateApiKey = async (apiKey: string, orgId: string) => {
+  await db
+    .update(organisationTable)
+    .set({
+      api_key: apiKey,
+    })
+    .where(eq(organisationTable.id, orgId));
 
   return { error: false, message: "Sucess" };
 };
@@ -69,7 +76,14 @@ export const fetchOrgDetailsById = async (orgId: string) => {
 
 export const fetchOrganisationByUserId = async (userId: string) => {
   return await db
-    .select()
+    .select({
+      id: organisationTable.id,
+      name: organisationTable.name,
+      api_key: organisationTable.api_key,
+      plan: organisationTable.plan,
+      status: organisationTable.status,
+      created_at: organisationTable.created_at,
+    })
     .from(organisationTable)
     .where(eq(organisationTable.user_id, userId));
 };
@@ -190,15 +204,18 @@ export const uploadFileEntry = async (
   path: string,
   type: string
 ) => {
-  await db.insert(filesTable).values({
-    name: filename,
-    type: type,
-    url: path,
-    chatbot_id: chatbotId,
-    organisation_id: orgId,
-  });
+  const result = await db
+    .insert(filesTable)
+    .values({
+      name: filename,
+      type: type,
+      url: path,
+      chatbot_id: chatbotId,
+      organisation_id: orgId,
+    })
+    .returning({ id: filesTable.id });
 
-  return { error: "false" };
+  return { error: false, data: result };
 };
 
 export const getFileByChatbotId = async (chatbotId: string) => {
@@ -230,4 +247,49 @@ export const downloadFile = async (path: string) => {
   }
 
   return { error: false, data: data };
+};
+
+export const getFilePathByOrgId = async (orgId: string) => {
+  return db
+    .select({ id: filesTable.id })
+    .from(filesTable)
+    .where(eq(filesTable.organisation_id, orgId));
+};
+
+export const getFileEmbed = async (fileId: string) => {
+  return db
+    .select()
+    .from(embeddingsTable)
+    .where(eq(embeddingsTable.file_id, fileId));
+};
+
+export const getSupabaseBucket = async (
+  bucketName: string,
+  filePath: string
+) => {
+  console.log(filePath);
+  return supabase.storage.from(bucketName).getPublicUrl(filePath);
+};
+
+export const fetchFileByApiKey = async (apiKey: string) => {
+  const orgData = await db
+    .select({ orgId: organisationTable.id })
+    .from(organisationTable)
+    .where(eq(organisationTable.api_key, apiKey));
+
+  if (orgData.length === 0) {
+    return { orgId: null };
+  }
+
+  return orgData[0];
+};
+
+export const storeVectorEmbedd = async (file_id: string, content) => {
+  const result = await db.insert(embeddingsTable).values({
+    embedding: content,
+    file_id: file_id,
+  });
+
+  console.log(result);
+  return "ok";
 };

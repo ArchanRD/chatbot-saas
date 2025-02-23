@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ClientAuthProvider } from "@/context/ClientAuthProvider";
-import NextTopLoader from "nextjs-toploader"
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,11 +26,33 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Handlee&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
           rel="stylesheet"
         />
+        {/* <Script
+        id="conversy-chatbot-script"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.__CHAT_CONFIG__ = {
+                apiKey: 'dde0eaf4-56da-49e4-b418-11b2cbb5bbfa-3608032a0689fe6af77de654bbbc63cfaef9ad46909b7a0899e67db3051beb06-1736309454120',
+                theme: {
+                  primary: '#2563eb',
+                  secondary: '#ffffff',
+                  text: '#1f2937',
+                  bubble: '#2563eb'
+                },
+                position: 'bottom-right',
+                title: 'Chat with us',
+                placeholder: 'Type your message...'
+              };
+            `,
+          }}
+        />
+        <Script src="/widget/chatbot.js" async />
+        <Script src="/widget/chat-init.js" async /> */}
       </head>
       <ClientAuthProvider>
         <body>
           <NextTopLoader color="#000" />
-          {children}</body>
+          {children}
+        </body>
       </ClientAuthProvider>
     </html>
   );

@@ -6,6 +6,7 @@ import {
   timestamp,
   uuid,
   varchar,
+  vector,
 } from "drizzle-orm/pg-core";
 
 // Users Table
@@ -26,7 +27,7 @@ export const organisationTable = pgTable("organisation", {
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
   user_id: uuid("user_id").references(() => usersTable.id),
-  api_key: text("api_key"),
+  api_key: text("api_key").unique(),
   name: text("name").notNull(),
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),
@@ -88,9 +89,19 @@ export const invitationsTable = pgTable("invitations", {
   status: text("status").notNull().default("PENDING"),
 });
 
+export const embeddingsTable = pgTable("embeddings", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuid_generate_v4()`),
+  file_id: uuid("file_id").references(() => filesTable.id),
+  embedding: vector("embedding", { dimensions: 768 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type Users = typeof usersTable.$inferSelect;
 export type Organisation = typeof organisationTable.$inferSelect;
 export type Chatbot = typeof chatbotsTable.$inferSelect;
 export type Files = typeof filesTable.$inferSelect;
 export type Collaborator = typeof collaboratorsTable.$inferSelect;
 export type Invitation = typeof invitationsTable.$inferSelect;
+export type Embedding = typeof embeddingsTable.$inferSelect;

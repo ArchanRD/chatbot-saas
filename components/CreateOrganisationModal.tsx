@@ -3,15 +3,16 @@ import { Building2, X } from "lucide-react";
 import React, { FormEvent, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { createOrganisation } from "@/lib/actions";
 import { toast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 type Notification = {
   message: string;
   type: "error" | "success" | "";
 };
 
-const CreateOrganisationModal = ({ onClose, session, onRefresh }) => {
+const CreateOrganisationModal = ({ onClose, onRefresh }) => {
+  const session = useSession();
   const [orgName, setorgName] = useState("");
   const [notification, setnotification] = useState<Notification>({
     message: "",
@@ -29,28 +30,37 @@ const CreateOrganisationModal = ({ onClose, session, onRefresh }) => {
     }
     try {
       //generate api key
-      const result = await createOrganisation(orgName, session.data.user.id);
+      // const result = await createOrganisation(orgName, session.data?.user.id!);
+
+      const result = await fetch("/api/create-organisation", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          orgName: orgName,
+          userId: session.data?.user?.id,
+        }),
+      }).then((res) => res.json());
+
       console.log(result);
-      if (result?.error) {
-        setnotification({
-          message: result.message,
-          type: "error",
-        });
-        return;
-      }
+
+      await session.update({
+        orgId: result.orgId,
+        orgName: result.orgName
+      });
 
       setnotification({ message: result.message, type: "success" });
       onClose();
       onRefresh();
       toast({
         title: "Success",
-        description: "Organisation created successfully",
+        description: result.message,
       });
-      // return redirect("/dashboard");
     } catch (error) {
       console.log(error);
       setnotification({
-        message: "Error while creating organisation",
+        message: "An error occured while creating the organisation",
         type: "error",
       });
     }
