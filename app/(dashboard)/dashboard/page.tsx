@@ -4,7 +4,6 @@ import ListOrganisations from "@/components/ListOrganisations";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { Organisation } from "@/db/schema";
 import { toast } from "@/hooks/use-toast";
 import { fetchOrganisationByUserId, updateApiKey } from "@/lib/actions";
 import { generateApiKey } from "@/lib/utils";
@@ -26,7 +25,6 @@ type Org = {
 export default function Dashboard() {
   const session = useSession();
   const router = useRouter();
-  const [isChatbotCreated, setIsChatbotCreated] = useState(false);
   const [orgDetails, setOrgDetails] = useState<Org | null>(null);
   const [buttonLoading, setButtonLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -34,11 +32,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     const getOrgDetails = async () => {
-      setLoading(true)
+      setLoading(true);
       const org = await fetchOrganisationByUserId(session.data!.user.id);
-      setLoading(false)
+      setLoading(false);
       if (org.length > 0) {
         setOrgDetails(org[0]);
+        if (
+          session.data?.user.orgId == null ||
+          session.data?.user.orgName == null
+        ) {
+          await session.update({
+            ...session.data,
+            orgId: org[0].id,
+            orgName: org[0].name,
+          });
+        }
       } else {
         setOrgDetails(null);
       }
@@ -47,6 +55,7 @@ export default function Dashboard() {
     if (session.status === "authenticated") {
       getOrgDetails();
     }
+    console.log(session);
   }, [session.status, refreshTrigger]);
 
   const handleCreateApiKey = async () => {
@@ -120,28 +129,12 @@ export default function Dashboard() {
         {/* chatbot card */}
         <div className="font-poppins p-5 bg-gray-50 flex-1 w-full rounded-xl my-3 mr-3">
           <div className="flex items-center justify-center h-full">
-            {!isChatbotCreated ? (
-              <div className="font-poppins flex items-center justify-center flex-col">
-                <h1 className="mb-1 font-bold text-gray-800 text-3xl">
-                  Create your first chatbot!
-                </h1>
-                <p className="text-gray-500 w-96 text-center mb-5">
-                  You have not created any chatbot yet. Start by creating
-                  chatbot.
-                </p>
-                <Link href={"/dashboard/chatbot"}>
-                  <Button size="default" className="text-base">
-                    Create chatbot
-                  </Button>
-                </Link>
-              </div>
-            ) : (
               <div className="font-poppins flex items-center justify-center flex-col">
                 <p className="border border-slate-400 py-1 px-4 text-black rounded-full text-xs mb-5">
-                  chatbot created
+                  customized chatbot
                 </p>
                 <h1 className="mb-1 font-bold text-gray-800 text-3xl">
-                  View chatbot details
+                  View chatbot
                 </h1>
                 <p className="text-gray-500 w-96 text-center mb-5">
                   Check out chatbot details. Upload files to provide knowledge
@@ -153,7 +146,6 @@ export default function Dashboard() {
                   </Button>
                 </Link>
               </div>
-            )}
           </div>
         </div>
       </div>

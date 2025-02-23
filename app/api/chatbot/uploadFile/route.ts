@@ -7,7 +7,6 @@ import PdfParse from "pdf-parse";
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file = (formData.get("file") as File) || null;
-  console.log(formData);
 
   if (!file) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -55,12 +54,21 @@ export async function POST(req: NextRequest) {
   /**
    * Create and store file embedding in database
    */
-  const fileBuffer = Buffer.from(await file.arrayBuffer())
-  const parsedPDF = PdfParse(fileBuffer)
-
-  const fileEmbedd = await embeddModel.embedContent((await parsedPDF).text)
-  const storeVector = await storeVectorEmbedd(fileEntryResult.data[0].id, fileEmbedd.embedding.values)
-
+  if (file.type === "application/pdf") {
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const parsedPDF = PdfParse(fileBuffer);
+    const fileEmbedd = await embeddModel.embedContent((await parsedPDF).text);
+    await storeVectorEmbedd(
+      fileEntryResult.data[0].id,
+      fileEmbedd.embedding.values
+    );
+  } else {
+    const fileEmbedd = await embeddModel.embedContent(await file.text());
+    await storeVectorEmbedd(
+      fileEntryResult.data[0].id,
+      fileEmbedd.embedding.values
+    );
+  }
 
   return NextResponse.json(
     { message: "File uploaded successfully" },

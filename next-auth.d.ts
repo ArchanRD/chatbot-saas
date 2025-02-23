@@ -15,6 +15,7 @@ declare module "next-auth" {
       email: string;
       orgId: string;
       orgName: string;
+      chatbotId: string;
     } & DefaultSession["user"];
   }
 }

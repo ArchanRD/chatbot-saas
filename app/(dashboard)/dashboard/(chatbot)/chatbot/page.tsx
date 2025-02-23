@@ -73,11 +73,19 @@ const Page = () => {
         const res = await fetchChatbotDetailsByOrgId(orgId!);
         if (res.length > 0) {
           setChatbot(res[0]);
+          if (session.data?.user.chatbotId == null) {
+            await session.update({
+              ...session.data,
+              chatbotId: res[0].id,
+            });
+          }
         }
       } catch (error) {
         console.log(error);
       }
     }
+
+    console.log(session)
 
     if (session.status === "unauthenticated") {
       return redirect("/login");

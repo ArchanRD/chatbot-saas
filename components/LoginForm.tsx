@@ -1,5 +1,5 @@
 "use client";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import React, { FormEvent, useState } from "react";
 
@@ -9,7 +9,6 @@ type Notification = {
 };
 
 const LoginForm = () => {
-  const session = useSession();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

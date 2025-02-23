@@ -1,8 +1,5 @@
-"use client";
-import { toast } from "@/hooks/use-toast";
-import { signOut } from "next-auth/react";
+"use client"
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import React, { FormEvent, useState } from "react";
 
 type Notification = {
@@ -66,10 +63,14 @@ const RegisterForm = () => {
       </div>
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         {notification.type === "error" && (
-          <p className="text-red-500 bg-red-100/50 border border-red-500 p-2 rounded-sm text-center">{notification?.message}</p>
+          <p className="text-red-500 bg-red-100/50 border border-red-500 p-2 rounded-sm text-center">
+            {notification?.message}
+          </p>
         )}
         {notification.type === "success" && (
-          <p className="text-green-500 bg-green-100/50 border border-green-500 p-2 rounded-sm text-center">{notification?.message}</p>
+          <p className="text-green-500 bg-green-100/50 border border-green-500 p-2 rounded-sm text-center">
+            {notification?.message}
+          </p>
         )}
         <form
           onSubmit={handleSubmit}
@@ -122,7 +123,9 @@ const RegisterForm = () => {
           <div>
             <button
               type="submit"
-              className={`"flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" + ${loading ? "disabled:bg-indigo-300 cursor-not-allowed" : ""}`}
+              className={`"flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" + ${
+                loading ? "disabled:bg-indigo-300 cursor-not-allowed" : ""
+              }`}
               disabled={loading}
             >
               Create account

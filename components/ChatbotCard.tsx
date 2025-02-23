@@ -1,12 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Bot } from "lucide-react";
 import { Chatbot } from "@/db/schema";
+import { useSession } from "next-auth/react";
 
 const ChatbotCard = ({ chatbot }: { chatbot: Chatbot }) => {
-  const [orgName, setOrgName] = useState<string>("");
-
+  const session = useSession();
   return (
     <div className="flex gap-5 items-center font-poppins">
       <Card className="w-full max-w-xl !rounded-2xl !border-none !shadow-none">
@@ -36,10 +35,10 @@ const ChatbotCard = ({ chatbot }: { chatbot: Chatbot }) => {
                 Reference organisation
               </div>
               <div className="text-gray-700 bg-gray-50 border border-gray-50 hover:border-gray-300 transition-all ease-in-out p-3 rounded-lg w-full">
-                {orgName}
+                {session?.data?.user?.orgName}
               </div>
             </div>
-            <hr className="my-4"/>
+            <hr className="my-4" />
 
             <div className="flex flex-wrap items-center gap-2">
               <div className=" bg-slate-100 p-2 border border-slate-50 hover:border-slate-300 transition-all ease-in-out w-36 rounded-xl">

@@ -1,6 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getUserDetailsByEmail, verifyUserPassword } from "@/lib/actions";
+import {
+  getUserDetailsByEmail,
+  verifyUserPassword,
+} from "@/lib/actions";
 import jwt from "jsonwebtoken";
 
 export const authOptions: NextAuthOptions = {
@@ -35,7 +38,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
           };
         } catch (error) {
           console.log("Authentication error:", error);
@@ -79,7 +82,8 @@ export const authOptions: NextAuthOptions = {
         return {
           ...token,
           orgId: session.orgId || token.orgId,
-          orgName: session.orgName || token.orgName
+          orgName: session.orgName || token.orgName,
+          chatbotId: session.chatbotId || token.chatbotId,
         };
       }
       return token;
@@ -93,7 +97,8 @@ export const authOptions: NextAuthOptions = {
           email: token.email,
           name: token.name,
           orgId: token.orgId || null,
-          orgName: token.orgName || null
+          orgName: token.orgName || null,
+          chatbotId: token.chatbotId || null,
         },
       };
     },

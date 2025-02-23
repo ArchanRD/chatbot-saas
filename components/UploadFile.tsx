@@ -10,11 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { supabase } from "@/lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 import { Spinner } from "./ui/spinner";
 import { redirect } from "next/navigation";
-import { uploadFileEntry } from "@/lib/actions";
 import { DialogDescription } from "@radix-ui/react-dialog";
 
 export function UploadFile({
@@ -54,8 +52,8 @@ export function UploadFile({
         setUploadLoading(true);
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("orgId", orgDetails.orgId)
-        formData.append("chatbotId", chatbotId)
+        formData.append("orgId", orgDetails.orgId);
+        formData.append("chatbotId", chatbotId);
 
         const request = await fetch(
           `${process.env.NEXT_PUBLIC_APP_URL}/api/chatbot/uploadFile`,
@@ -98,7 +96,6 @@ export function UploadFile({
         //   path,
         //   file.type
         // );
-       
 
         onRefresh();
       } catch (error) {

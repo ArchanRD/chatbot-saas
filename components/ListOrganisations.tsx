@@ -1,14 +1,9 @@
 "use client";
-import { Organisation } from "@/db/schema";
-import { fetchOrganisationByUserId } from "@/lib/actions";
-import { redirect } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 import CreateOrganisationModal from "./CreateOrganisationModal";
 import OrganisationCard from "./OrganisationCard";
-import { Skeleton } from "./ui/skeleton";
-import { toast } from "@/hooks/use-toast";
 
 const ListOrganisations = ({ onRefresh, orgs }) => {
   const [showModal, setShowModal] = useState(false);

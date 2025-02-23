@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ClientAuthProvider } from "@/context/ClientAuthProvider";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
-import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Create Next App",
