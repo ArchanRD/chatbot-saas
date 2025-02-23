@@ -55,7 +55,6 @@ export default function Dashboard() {
     if (session.status === "authenticated") {
       getOrgDetails();
     }
-    console.log(session);
   }, [session.status, refreshTrigger]);
 
   const handleCreateApiKey = async () => {

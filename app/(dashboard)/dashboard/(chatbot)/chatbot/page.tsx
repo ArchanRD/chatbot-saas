@@ -85,8 +85,6 @@ const Page = () => {
       }
     }
 
-    console.log(session)
-
     if (session.status === "unauthenticated") {
       return redirect("/login");
     } else if (session.status === "loading") {

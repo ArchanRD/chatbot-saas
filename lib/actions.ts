@@ -226,6 +226,7 @@ export const getFileByChatbotId = async (chatbotId: string) => {
 };
 
 export const removeFileById = async (fileId: string, path: string) => {
+  await db.delete(embeddingsTable).where(eq(embeddingsTable.file_id, fileId));
   const res = await db.delete(filesTable).where(eq(filesTable.id, fileId));
 
   const response = await supabase.storage.from("file uploads").remove([path]);
