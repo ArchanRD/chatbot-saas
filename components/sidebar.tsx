@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { Skeleton } from "./ui/skeleton";
 import { useState } from "react";
 
 export function Sidebar() {

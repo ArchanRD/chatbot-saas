@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 export function ApiKeys({ apiKey }) {
   const [copied, setCopied] = useState<string | null>(null);
