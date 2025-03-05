@@ -103,7 +103,7 @@ export function InviteModal({ orgId, orgName }) {
                 setEmail(e.target.value);
                 setNotification({ message: "", type: "" });
               }}
-              className="flex-1"
+              className="flex-1 w-52 sm:w-full text-sm sm:text-base"
               required
             />
             <Button

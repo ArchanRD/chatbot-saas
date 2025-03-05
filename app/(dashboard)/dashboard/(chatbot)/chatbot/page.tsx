@@ -207,12 +207,12 @@ const Page = () => {
           <ChatbotCard chatbot={chatbot} />
         </div>
       ) : (
-        <Card className=" w-[500px] p-10 shadow-none bg-white">
-          <div className="font-poppins flex items-center justify-center flex-col">
-            <h1 className="mb-1 font-bold text-gray-800 text-3xl">
+        <Card className="w-72 sm:w-[500px] sm:p-10 p-4 shadow-none bg-white">
+          <div className="font-poppins flex sm:items-center justify-center flex-col">
+            <h1 className="mb-1 font-bold text-gray-800 text-xl sm:text-3xl">
               Create your first chatbot!
             </h1>
-            <p className="text-gray-500 w-96 text-center mb-5">
+            <p className="text-gray-500 text-sm sm:text-base w-auto sm:w-96 sm:text-center mb-5">
               You have not created any chatbot yet. Start by creating chatbot.
             </p>
             <ChatbotModal
@@ -224,7 +224,7 @@ const Page = () => {
         </Card>
       )}
 
-      <div className="py-3 ">
+      <div className="py-3">
         <Card className="w-full max-w-xl !rounded-2xl !border-none !shadow-none">
           <CardHeader className="font-poppins flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="">

@@ -17,10 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="flex h-full min-h-dvh bg-gray-200">
-          <div className="flex-1 flex">
+        <div className="h-full min-h-dvh bg-gray-200">
+          <div className="flex">
             <Sidebar />
-            <div className="flex-1 ml-64">
+            <div className="md:ml-64 ml-16 w-full">
               <Header />
               {children}
             </div>

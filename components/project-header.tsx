@@ -12,12 +12,12 @@ export function ProjectHeader({ createdAt, orgName, orgId }) {
         </span>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex md:flex-nowrap flex-wrap items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
             <Building2 />
           </div>
-          <h1 className="text-2xl font-semibold">{orgName}</h1>
+          <h1 className="text-sm sm:text-xl md:text-2xl font-semibold">{orgName}</h1>
         </div>
 
         <div className="flex items-center gap-2">
