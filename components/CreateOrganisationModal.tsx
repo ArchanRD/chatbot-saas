@@ -68,7 +68,7 @@ const CreateOrganisationModal = ({ onClose, onRefresh }) => {
 
   return (
     <div className="bg-black/40 w-screen h-screen fixed top-0 left-0 font-poppins">
-      <div className="bg-white w-[500px] mx-auto fixed top-1/3 left-1/2 -translate-x-1/3 -translate-y-1/3  rounded-xl p-7">
+      <div className="bg-gray-100 sm:w-[400px] w-64 mx-auto fixed top-1/3 left-1/2 md:-translate-x-1/3 md:-translate-y-1 sm:-translate-x-44 -translate-x-28 -translate-y-1/4 rounded-xl p-7">
         <div className="flex justify-end">
           <X
             onClick={onClose}
@@ -77,7 +77,7 @@ const CreateOrganisationModal = ({ onClose, onRefresh }) => {
             height={40}
           />
         </div>
-        <div className="flex gap-3 items-center mb-5">
+        <div className="flex md:flex-nowrap flex-wrap gap-3 items-center mb-5">
           <Building2 width={40} height={40} />
           <h1 className="capitalize font-bold font-poppins text-gray-800 text-2xl">
             Create a new organisation

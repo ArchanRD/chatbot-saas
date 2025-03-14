@@ -103,8 +103,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="">
-      <div className="flex gap-2 flex-wrap">
+    <div className="flex flex-col">
+      <div className="flex flex-wrap">
         {!loading ? (
           <ListOrganisations
             onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
@@ -126,29 +126,29 @@ export default function Dashboard() {
           </div>
         )}
         {/* chatbot card */}
-        <div className="font-poppins p-5 bg-gray-50 flex-1 w-full rounded-xl my-3 mr-3">
+        <div className="font-poppins p-5 mx-3 my-2 bg-gray-50 flex-1 w-full rounded-2xl">
           <div className="flex items-center justify-center h-full">
-              <div className="font-poppins flex items-center justify-center flex-col">
-                <p className="border border-slate-400 py-1 px-4 text-black rounded-full text-xs mb-5">
-                  customized chatbot
-                </p>
-                <h1 className="mb-1 font-bold text-gray-800 text-3xl">
+            <div className="font-poppins flex items-center justify-center flex-col">
+              <p className="border border-slate-400 py-1 px-4 text-black rounded-full text-xs mb-5">
+                customized chatbot
+              </p>
+              <h1 className="mb-1 font-bold text-gray-800 text-3xl">
+                View chatbot
+              </h1>
+              <p className="text-gray-500 md:w-96 text-sm md:text-base text-center mb-5">
+                Check out chatbot details. Upload files to provide knowledge
+                base to your chatbot
+              </p>
+              <Link href={"/dashboard/chatbot"}>
+                <Button size="default" className="text-base">
                   View chatbot
-                </h1>
-                <p className="text-gray-500 w-96 text-center mb-5">
-                  Check out chatbot details. Upload files to provide knowledge
-                  base to your chatbot
-                </p>
-                <Link href={"/dashboard/chatbot"}>
-                  <Button size="default" className="text-base">
-                    View chatbot
-                  </Button>
-                </Link>
-              </div>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-      <div className="font-poppins bg-gray-50 rounded-xl m-3 p-5">
+      <div className="font-poppins bg-gray-50 rounded-2xl m-3 p-5 w-auto">
         <div>
           <h2 className="text-xl font-semibold mb-1">API keys</h2>
           <p className="text-sm text-muted-foreground">
@@ -157,14 +157,14 @@ export default function Dashboard() {
         </div>
         <hr className="my-4" />
         {orgDetails && orgDetails.api_key ? (
-          <>
+          <div className="">
             <ApiKeys apiKey={orgDetails.api_key} />
             <p className="text-sm text-slate-500 mt-5 flex items-center gap-2">
               <TriangleAlert />
               Use the copy button to copy the API key. The key might be
               truncated visually due to line-clamp styling.
             </p>
-          </>
+          </div>
         ) : (
           <div className="w-full max-w-xs  space-y-6">
             <div>
