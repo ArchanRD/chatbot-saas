@@ -222,6 +222,7 @@ export const uploadFileEntry = async (
 
     return { error: false, data: result };
   } catch (error) {
+    console.log("Error:", error)
     return { error: true, data:false};
   }
 };
@@ -302,6 +303,7 @@ export const storeVectorEmbedd = async (file_id: string, content) => {
     console.log("Vector embed log: ", result);
     return { error: false, message: "Embedding stored successfully" };
   } catch (error) {
+    console.log("Error:", error)
     return { error: true, message: "Failed to store Embedding" };
   }
 
