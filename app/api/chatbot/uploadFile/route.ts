@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     savedFileData.path,
     file.type
   );
-  if (fileEntryResult.error == true) {
+  if (fileEntryResult.error) {
     return NextResponse.json(
       { error: "Error uploading file" },
       { status: 500 }
@@ -64,11 +64,18 @@ export async function POST(req: NextRequest) {
     );
   } else {
     const fileEmbedd = await embeddModel.embedContent(await file.text());
-    await storeVectorEmbedd(
+    const storeVectorResponse = await storeVectorEmbedd(
       fileEntryResult.data[0].id,
       fileEmbedd.embedding.values
     );
+    if(storeVectorResponse.error){
+      return NextResponse.json(
+        { error: "Error storing file embedding" },
+        { status: 500 }
+      );
+    }
   }
+
 
   return NextResponse.json(
     { message: "File uploaded successfully" },

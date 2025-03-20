@@ -53,7 +53,11 @@ export const createOrganisation = async (orgName: string, userId: string) => {
       plan: "free",
     })
     .returning({ id: organisationTable.id, orgName: organisationTable.name });
-  return { error: false, message: "Organisation created successfully", orgDetails };
+  return {
+    error: false,
+    message: "Organisation created successfully",
+    orgDetails,
+  };
 };
 
 export const updateApiKey = async (apiKey: string, orgId: string) => {
@@ -204,18 +208,22 @@ export const uploadFileEntry = async (
   path: string,
   type: string
 ) => {
-  const result = await db
-    .insert(filesTable)
-    .values({
-      name: filename,
-      type: type,
-      url: path,
-      chatbot_id: chatbotId,
-      organisation_id: orgId,
-    })
-    .returning({ id: filesTable.id });
+  try {
+    const result = await db
+      .insert(filesTable)
+      .values({
+        name: filename,
+        type: type,
+        url: path,
+        chatbot_id: chatbotId,
+        organisation_id: orgId,
+      })
+      .returning({ id: filesTable.id });
 
-  return { error: false, data: result };
+    return { error: false, data: result };
+  } catch (error) {
+    return { error: true, data:false};
+  }
 };
 
 export const getFileByChatbotId = async (chatbotId: string) => {
@@ -286,11 +294,15 @@ export const fetchFileByApiKey = async (apiKey: string) => {
 };
 
 export const storeVectorEmbedd = async (file_id: string, content) => {
-  const result = await db.insert(embeddingsTable).values({
-    embedding: content,
-    file_id: file_id,
-  });
+  try {
+    const result = await db.insert(embeddingsTable).values({
+      embedding: content,
+      file_id: file_id,
+    });  
+    console.log("Vector embed log: ", result);
+    return { error: false, message: "Embedding stored successfully" };
+  } catch (error) {
+    return { error: true, message: "Failed to store Embedding" };
+  }
 
-  console.log(result);
-  return "ok";
 };
