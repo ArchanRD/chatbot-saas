@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClientAuthProvider } from "@/context/ClientAuthProvider";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,12 +29,12 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Handlee&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
           rel="stylesheet"
         />
-        {/* <Script
+        <Script
         id="conversy-chatbot-script"
           dangerouslySetInnerHTML={{
             __html: `
               window.__CHAT_CONFIG__ = {
-                apiKey: 'dde0eaf4-56da-49e4-b418-11b2cbb5bbfa-3608032a0689fe6af77de654bbbc63cfaef9ad46909b7a0899e67db3051beb06-1736309454120',
+                apiKey: 'e95e533b-abf4-4480-bf55-f0bc494ff976-fab8c4bf3cbf9b817d3601014cb106a28e6534ed23aa0c8bab41bb5b24a5b987-1742906640007',
                 theme: {
                   primary: '#2563eb',
                   secondary: '#ffffff',
@@ -48,7 +49,7 @@ export default function RootLayout({
           }}
         />
         <Script src="/widget/chatbot.js" async />
-        <Script src="/widget/chat-init.js" async /> */}
+        <Script src="/widget/chat-init.js" async />
       </head>
       <ClientAuthProvider>
         <body>
