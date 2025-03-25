@@ -1,5 +1,7 @@
 "use client"
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { FormEvent, useState } from "react";
 
 type Notification = {
@@ -15,6 +17,8 @@ const RegisterForm = () => {
     type: "",
   });
   const [loading, setLoading] = useState(false);
+  const session = useSession();
+  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -49,6 +53,10 @@ const RegisterForm = () => {
       });
     }
   };
+
+  if(session.status === "authenticated"){
+    router.push("/dashboard")
+  }
   return (
     <div className="flex min-h-screen font-inter flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">

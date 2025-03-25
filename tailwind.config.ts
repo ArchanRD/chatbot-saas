@@ -60,6 +60,10 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      animation: {
+        spotlight_opacity: 'spotlight_opacity calc(var(--duration,5s)*1.2) linear infinite var(--delay,0s) alternate',
+        spotlight_scale: 'spotlight_scale calc(var(--duration,5s)*1.7) infinite var(--delay,0s) both'
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],
