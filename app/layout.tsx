@@ -17,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <title>Conversy</title>
         {/* open graph */}
         <meta property="og:image" content="<generated>"></meta>
         <link rel="preconnect" href="https://fonts.googleapis.com" />

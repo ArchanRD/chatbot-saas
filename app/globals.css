@@ -70,19 +70,6 @@
 }
 
 
-.grid-background {
-  background-size: 50px 50px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-}
-
-@media (prefers-color-scheme: dark) {
-  .grid-background {
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  }
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
