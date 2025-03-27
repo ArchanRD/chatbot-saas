@@ -47,7 +47,7 @@ const LoginForm = () => {
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen font-inter px-6 lg:px-8">
-      <header className="relative z-10 flex justify-between items-center p-6 md:p-10">
+      <header className="relative z-10 flex justify-between items-center py-6 md:py-10 ">
         <div>
           <Link href="/" className="text-gray-800 flex items-center gap-2">
             <img
@@ -59,7 +59,7 @@ const LoginForm = () => {
           </Link>
         </div>
 
-        <Button onClick={() => router.push("/login")}>Login</Button>
+        <Button onClick={() => router.push("/register")}>Create account</Button>
       </header>
       <div className="py-12">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -135,7 +135,7 @@ const LoginForm = () => {
           <p className="mt-5">
             Dont have an account?{" "}
             <Link href="/register" className="text-indigo-600 hover:underline">
-              Register
+              Create an account
             </Link>
           </p>
         </div>
