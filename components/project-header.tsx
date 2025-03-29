@@ -1,11 +1,10 @@
 "use client";
-import { Edit, Building2, Users } from "lucide-react";
+import { Building2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InviteModal } from "./invite-modal";
 import ShowMembersModal from "./ShowMembersModal";
 import { useEffect, useState } from "react";
 import { fetchCollaboratorsByOrgId } from "@/lib/actions";
-import { useSession } from "next-auth/react";
 
 interface ShowCollaboratorType {
   email: string | null
@@ -13,14 +12,13 @@ interface ShowCollaboratorType {
 
 export function ProjectHeader({ createdAt, orgName, orgId }) {
   const [isOpen, setIsOpen] = useState(false);
-  const session = useSession();
   const [collaborators, setCollaborators] = useState<ShowCollaboratorType[]>([]);
 
   useEffect(() => {
     async function fetchCollaborators() {
       try {
         const result = await fetchCollaboratorsByOrgId(
-          session.data?.user.orgId!
+          orgId
         );
 
         if (result.error) {
@@ -34,7 +32,7 @@ export function ProjectHeader({ createdAt, orgName, orgId }) {
     }
 
     fetchCollaborators()
-  }, []);
+  }, [orgId]);
 
   return (
     <div className="space-y-4 py-6">

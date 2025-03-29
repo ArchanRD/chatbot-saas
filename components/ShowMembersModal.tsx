@@ -1,19 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Search, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 export default function ShowMembersModal({ collaborators, isOpen, setIsOpen }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  // const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Filter members based on search term
   const filteredMembers = collaborators.filter(
@@ -22,17 +21,17 @@ export default function ShowMembersModal({ collaborators, isOpen, setIsOpen }) {
   );
 
   // Sort members based on username
-  const sortedMembers = [...filteredMembers].sort((a, b) => {
-    if (sortDirection === "asc") {
-      return a.username.localeCompare(b.username);
-    } else {
-      return b.username.localeCompare(a.username);
-    }
-  });
+  // const sortedMembers = [...filteredMembers].sort((a, b) => {
+  //   if (sortDirection === "asc") {
+  //     return a.username.localeCompare(b.username);
+  //   } else {
+  //     return b.username.localeCompare(a.username);
+  //   }
+  // });
 
-  const toggleSort = () => {
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  };
+  // const toggleSort = () => {
+  //   setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  // };
 
   if(collaborators.length == 0){
     return (
