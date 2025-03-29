@@ -25,8 +25,8 @@ const frameworks = [
         placeholder: 'Type your message...'
       };
     </script>
-    <script src="http://localhost:3000/widget/chatbot.js" async ></script>
-    <script src="http://localhost:3000/widget/chat-init.js" async ></script>`,
+    <script src="${process.env.NEXT_PUBLIC_APP_URL}/widget/chatbot.js" async ></script>
+    <script src="${process.env.NEXT_PUBLIC_APP_URL}/widget/chat-init.js" async ></script>`,
     instruction: "Paste this in the <head> of your index.html",
   },
   {
@@ -54,8 +54,8 @@ const frameworks = [
             \`,
           }}
         />
-        <script src="http://localhost:3000/widget/chatbot.js" async />
-        <script src="http://localhost:3000/widget/chat-init.js" async />`,
+        <script src="${process.env.NEXT_PUBLIC_APP_URL}/widget/chatbot.js" async ></script>
+    <script src="${process.env.NEXT_PUBLIC_APP_URL}/widget/chat-init.js" async ></script>`,
     instruction: "Paste this in root layout file in the app directory",
   },
   {
@@ -76,8 +76,8 @@ const frameworks = [
         placeholder: 'Type your message...'
       };
     </script>
-    <script src="http://localhost:3000/widget/chatbot.js" async ></script>
-    <script src="http://localhost:3000/widget/chat-init.js" async ></script>`,
+    <script src="${process.env.NEXT_PUBLIC_APP_URL}/widget/chatbot.js" async ></script>
+    <script src="${process.env.NEXT_PUBLIC_APP_URL}/widget/chat-init.js" async ></script>`,
     instruction: "Paste this in the <head> of your index.html",
   },
 ];
@@ -126,7 +126,7 @@ const Page = () => {
         <Info />
         <div className="">
           <h1 className="font-bold text-xl mb-3">Instruction</h1>
-        {activeFramework.instruction}
+          {activeFramework.instruction}
         </div>
       </div>
 
