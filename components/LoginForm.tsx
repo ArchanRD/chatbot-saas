@@ -24,8 +24,7 @@ const LoginForm = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(email, password);
-
+    
     setLoading(true);
     const result = await signIn("credentials", {
       email,

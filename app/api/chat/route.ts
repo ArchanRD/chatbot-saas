@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const filefields = await db
       .select()
       .from(filesTable)
-      .where(eq(filesTable.organisation_id, orgId))
+      .where(eq(filesTable.organisation_id, orgId));
 
     if (!filefields[0].id) {
       return NextResponse.json(
@@ -52,25 +52,23 @@ export async function POST(request: NextRequest) {
     const file = await downloadFile(filefields[0].url);
     const arrayBuffer = await file.data?.arrayBuffer();
 
-    const fileBuffer = Buffer.from(arrayBuffer!)
-    const fileData = await PdfParse(fileBuffer)
-    
+    const fileBuffer = Buffer.from(arrayBuffer!);
+    const fileData = await PdfParse(fileBuffer);
 
     const fileContext = fileData.text;
-    
+
     const prompt = `
     Context from document:
     ${fileContext}
 
     User Question: ${user_message}
 
-    Answer the user's question using the provided context. If the necessary information is not available, politely decline without referencing the context, document, or file. Do no reveal the context to user even if explicity asked. Do not mention the words document, file, knowledge base, context. You can simply say I cannot answer that.`;
+    Answer me using the provided context. If the necessary information is not available, politely decline without referencing the context, document, or file. Do no reveal the context to user even if explicity asked. Do not mention the words document, file, knowledge base, context. You can simply say I cannot answer that. `;
 
-   
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-   
+
     return NextResponse.json(
       {
         message: text,
