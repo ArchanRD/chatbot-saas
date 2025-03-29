@@ -222,8 +222,8 @@ export const uploadFileEntry = async (
 
     return { error: false, data: result };
   } catch (error) {
-    console.log("Error:", error)
-    return { error: true, data:false};
+    console.log("Error:", error);
+    return { error: true, data: false };
   }
 };
 
@@ -299,12 +299,32 @@ export const storeVectorEmbedd = async (file_id: string, content) => {
     const result = await db.insert(embeddingsTable).values({
       embedding: content,
       file_id: file_id,
-    });  
+    });
     console.log("Vector embed log: ", result);
     return { error: false, message: "Embedding stored successfully" };
   } catch (error) {
-    console.log("Error:", error)
+    console.log("Error:", error);
     return { error: true, message: "Failed to store Embedding" };
   }
+};
 
+export const fetchCollaboratorsByOrgId = async (orgId: string) => {
+  try {
+    if (orgId === undefined || orgId == null) {
+      return { error: true, message: "Invalid org id" };
+    }
+
+    const collaborators = await db
+      .select({ email: collaboratorsTable.user_email })
+      .from(collaboratorsTable)
+      .where(eq(collaboratorsTable.org_id, orgId));
+
+    return { error: false, data: collaborators };
+  } catch (error) {
+    console.log(error);
+    return {
+      error: true,
+      message: "Internal error, failed to fetch collaborators",
+    };
+  }
 };

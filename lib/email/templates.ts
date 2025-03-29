@@ -2,13 +2,14 @@ export const emailTemplates = {
   invitation: (inviteUrl: string, organizationName: string) => ({
     subject: `Join ${organizationName} on Conversy`,
     html: `
-        <!DOCTYPE html>
+         <!DOCTYPE html>
       <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <img src="https://conversy.archan.dev/conversy-black-logo.png" style="width:50px; height:50px; text-align:center; border-radius:50%; display:block; margin:30px auto auto auto;" >
           <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2>You've been invited to join ${organizationName}</h2>
             <p>Someone has invited you to collaborate on their Conversy chatbot platform.</p>
-            <div style="text-align: center; margin: 30px 0;">
+            <div style="text-align: center;">
               <a href="${inviteUrl}" 
                  style="background-color: #242424; 
                         color: white; 
