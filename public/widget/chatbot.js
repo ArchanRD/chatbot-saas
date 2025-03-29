@@ -228,7 +228,7 @@ class ChatBubble {
       input.value = "";
       if (message) {
         this.addMessage(message, "user");
-        const request = await fetch(`http://localhost:3000/api/chat`, {
+        const request = await fetch(`https://conversy.archan.dev/api/chat`, {
           body: JSON.stringify({ message, apiKey: this.config.apiKey }),
           method: "POST",
           headers: {

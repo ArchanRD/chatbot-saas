@@ -52,7 +52,7 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Sidebar */}
-      <div className="md:hidden">
+      <div className="md:hidden font-inter">
         {/* Mini Sidebar (Icons Only) */}
         <div className="top-0 fixed left-0 h-full w-16 bg-white border-r z-50 flex flex-col">
           <Link
@@ -73,7 +73,7 @@ export function Sidebar() {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:block fixed top-0 left-0 w-64 h-full bg-white border-r z-50">
+      <div className="hidden md:block fixed top-0 left-0 w-64 h-full bg-white border-r z-50 font-inter">
         <Link href={"/dashboard"} className="p-4 flex items-center gap-1">
           <img
             src="/Conversy-logo-white.png"
