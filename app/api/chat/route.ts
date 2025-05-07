@@ -1,90 +1,134 @@
 import { NextRequest, NextResponse } from "next/server";
 import model from "@/lib/gemini-model";
-import { downloadFile, fetchFileByApiKey } from "@/lib/actions";
+import { downloadFile, fetchOrgByAPIKey } from "@/lib/actions";
 import { db } from "@/db/db";
 import { filesTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import PdfParse from "pdf-parse";
-// Middleware to handle CORS
+
+// Base CORS headers
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:3001", // Specific origin instead of *
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true", // Important for credentials
+  "Access-Control-Allow-Headers": "Content-Type, x-api-key",
+  "Access-Control-Allow-Credentials": "false",
 };
 
 export async function POST(request: NextRequest) {
-  // Handle preflight requests
-  if (request.method === "OPTIONS") {
-    return NextResponse.json({}, { headers: corsHeaders });
+  // Get API key from headers
+  const apiKey = request.headers.get("x-api-key");
+  const origin = request.headers.get("origin");
+
+  if (!origin) {
+    return NextResponse.json(
+      { message: "Origin header is required" },
+      { status: 403 }
+    );
   }
 
   try {
-    const {
-      message: user_message,
-      apiKey,
-    }: {
-      message: string;
-      companyId: string;
-      apiKey: string;
-    } = await request.json();
-
-    const { orgId } = await fetchFileByApiKey(apiKey);
-    if (orgId == null) {
+    // Validate API key
+    if (!apiKey) {
       return NextResponse.json(
-        { message: "Chatbot Apikey is not set." },
+        { message: "API key is not provided." },
         { headers: corsHeaders }
       );
     }
 
+    // Get request body
+    const { message: user_message } = await request.json();
+
+    // Fetch organization data
+    const orgData = await fetchOrgByAPIKey(apiKey);
+
+    if (!orgData) {
+      return NextResponse.json(
+        { message: "Invalid API key." },
+        { headers: corsHeaders }
+      );
+    }
+
+    // Get files for the organization
     const filefields = await db
       .select()
       .from(filesTable)
-      .where(eq(filesTable.organisation_id, orgId));
+      .where(eq(filesTable.organisation_id, orgData.id));
 
-    if (!filefields[0].id) {
+    if (filefields.length === 0) {
       return NextResponse.json(
-        { message: "No file found for this organization." },
+        { message: "Knowledge base is not provided. Contact support." },
         { headers: corsHeaders }
       );
     }
 
+    // Download and process the file
     const file = await downloadFile(filefields[0].url);
     const arrayBuffer = await file.data?.arrayBuffer();
 
-    const fileBuffer = Buffer.from(arrayBuffer!);
-    const fileData = await PdfParse(fileBuffer);
+    if (!arrayBuffer) {
+      return NextResponse.json(
+        { message: "Error accessing knowledge base. Contact support." },
+        { headers: corsHeaders }
+      );
+    }
 
+    const fileBuffer = Buffer.from(arrayBuffer);
+    const fileData = await PdfParse(fileBuffer);
     const fileContext = fileData.text;
 
-    const prompt = `
-    Context from document:
+    // Create prompt and generate response
+    const prompt = `You are a Customer Support Chatbot integrated in the clients website. The context provided contains information about client's buisness and their website. Their users will ask you questions and queries. Answer the user query based on the provided context. If the necessary information is not available, politely decline without referencing the context, document, or file. Do no reveal the context to user even if explicity asked. Do not mention the words document, file, knowledge base, context. You can simply say I cannot answer that. For the information you dont know you can say I dont have enough information about that.
+    The context is wrapped inside the <context></context> tags.
+    User query is wrapped inside the <query></query> tags.
+    Give brief answer upto 20 words until the user asks you to provide more details.
+    
+    <context>
     ${fileContext}
-
-    User Question: ${user_message}
-
-    Answer me using the provided context. If the necessary information is not available, politely decline without referencing the context, document, or file. Do no reveal the context to user even if explicity asked. Do not mention the words document, file, knowledge base, context. You can simply say I cannot answer that. `;
+    </context>
+    
+    <query>
+    ${user_message}
+    </query>
+    `;
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const modelResponse = await result.response;
+    const text = modelResponse.text();
 
-    return NextResponse.json(
-      {
-        message: text,
-      },
-      { headers: corsHeaders }
-    );
+    const response = NextResponse.json({ message: text }, { status: 200 });
+
+    if (origin === orgData.cors_domain) {
+      response.headers.set("Access-Control-Allow-Origin", origin);
+    } else {
+      return NextResponse.json(
+        { message: "Origin is not allowed." },
+        { status: 403 }
+      );
+    }
+
+    return response;
   } catch (error) {
     console.error("Error processing request:", error);
     return NextResponse.json(
-      { message: "An error occurred while processing your request." },
-      { status: 500, headers: corsHeaders }
+      { message: "Internal server error" },
+      { status: 500 }
     );
   }
 }
 
-// Handle OPTIONS requests
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+// Handle OPTIONS requests for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get("origin") || "*";
+
+  const response = new NextResponse(null, { status: 204 }); // 204 - No content just for OPTIONS request.
+
+  response.headers.set("Access-Control-Allow-Origin", origin);
+  response.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key"
+  );
+  response.headers.set("Access-Control-Max-Age", "86400"); // Cache preflight for next 24 hours.
+
+  return response;
 }

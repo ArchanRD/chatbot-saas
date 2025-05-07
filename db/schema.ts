@@ -32,6 +32,7 @@ export const organisationTable = pgTable("organisation", {
   plan: varchar("plan").notNull().default("free"),
   status: varchar("status").notNull().default("active"),
   settings: jsonb("settings").notNull().default({}),
+  cors_domain: text("cors_domain").notNull().default(""),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });

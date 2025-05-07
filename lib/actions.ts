@@ -235,9 +235,8 @@ export const getFileByChatbotId = async (chatbotId: string) => {
 };
 
 export const removeFileById = async (fileId: string, path: string) => {
-  await db.delete(embeddingsTable).where(eq(embeddingsTable.file_id, fileId));
   const res = await db.delete(filesTable).where(eq(filesTable.id, fileId));
-
+  console.log("[DEBUG] file path: ", path);
   const response = await supabase.storage.from("file uploads").remove([path]);
 
   if (res.rowCount == 1 && response.error === null) {
@@ -281,14 +280,14 @@ export const getSupabaseBucket = async (
   return supabase.storage.from(bucketName).getPublicUrl(filePath);
 };
 
-export const fetchFileByApiKey = async (apiKey: string) => {
+export const fetchOrgByAPIKey = async (apiKey: string) => {
   const orgData = await db
-    .select({ orgId: organisationTable.id })
+    .select()
     .from(organisationTable)
     .where(eq(organisationTable.api_key, apiKey));
 
   if (orgData.length === 0) {
-    return { orgId: null };
+    return null;
   }
 
   return orgData[0];
@@ -326,5 +325,18 @@ export const fetchCollaboratorsByOrgId = async (orgId: string) => {
       error: true,
       message: "Internal error, failed to fetch collaborators",
     };
+  }
+};
+
+export const updateCorsDomain = async (orgId: string, corsDomain: string) => {
+  try {
+    await db
+      .update(organisationTable)
+      .set({ cors_domain: corsDomain })
+      .where(eq(organisationTable.id, orgId));
+    return { error: false, message: "Cors domain updated successfully" };
+  } catch (error) {
+    console.log(error);
+    return { error: true, message: "Failed to update cors domain" };
   }
 };
