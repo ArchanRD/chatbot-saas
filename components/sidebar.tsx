@@ -1,10 +1,6 @@
 "use client";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  CirclePlus,
-  MessageCircleCode,
-} from "lucide-react";
+import { LayoutDashboard, CirclePlus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
@@ -20,12 +16,6 @@ export function Sidebar() {
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
     { icon: CirclePlus, label: "Chatbot", link: "/dashboard/chatbot" },
-    {
-      icon: MessageCircleCode,
-      label: "Integration",
-      link: "/dashboard/integration",
-    },
-    // { icon: Layers2, label: "Joined Organisations", link: "" },
   ];
 
   const renderNavItems = (items, fullView = true) => {

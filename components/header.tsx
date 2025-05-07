@@ -13,7 +13,7 @@ export function Header() {
     await signOut();
   };
   return (
-    <header className="h-16 sticky top-0 border-b bg-white px-4 flex items-center justify-between font-inter">
+    <header className="h-16 sticky top-0 border-b bg-white px-4 flex items-center justify-between font-inter z-50">
       <div className="flex items-center flex-1 gap-4">
         <div className="font-medium">
           <div className="text-sm text-gray-500">Welcome,</div>

@@ -2,10 +2,8 @@
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Bot } from "lucide-react";
 import { Chatbot } from "@/db/schema";
-import { useSession } from "next-auth/react";
 
 const ChatbotCard = ({ chatbot }: { chatbot: Chatbot }) => {
-  const session = useSession();
   return (
     <div className="flex gap-5 items-center font-poppins">
       <Card className="w-full max-w-xl !rounded-2xl !border-none !shadow-none">
@@ -32,11 +30,9 @@ const ChatbotCard = ({ chatbot }: { chatbot: Chatbot }) => {
             </div>
             <div className="mt-3">
               <div className="font-medium mb-1 ml-2">
-                Reference organisation
+                Add Website Domain
               </div>
-              <div className="text-gray-700 bg-gray-50 border border-gray-50 hover:border-gray-300 transition-all ease-in-out p-3 rounded-lg w-full">
-                {session?.data?.user?.orgName}
-              </div>
+              <input type="text" className="text-gray-700 bg-gray-50 border border-gray-50 hover:border-gray-300 transition-all ease-in-out p-3 rounded-lg w-full" />
             </div>
             <hr className="my-4" />
 

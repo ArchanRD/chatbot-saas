@@ -37,6 +37,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Toast } from "../ui/toast";
 import { ToastProvider } from "@radix-ui/react-toast";
 
+
 const chatbotFormSchema = z.object({
   name: z.string().min(2, {
     message: "Chatbot name must be at least 2 characters.",
@@ -48,10 +49,10 @@ const chatbotFormSchema = z.object({
     message: "Welcome message must be at least 5 characters.",
   }),
   orgId: z
-    .string()
-    .nonempty({ message: "Select your organisation" })
-    .refine((val) => val !== "Select your organisation", {
-      message: "Invalid orgnanisation selected",
+  .string()
+  .nonempty({ message: "Select your organisation" })
+  .refine((val) => val !== "Select your organisation", {
+    message: "Invalid orgnanisation selected",
     }),
 });
 
@@ -64,9 +65,9 @@ const defaultValues: Partial<ChatbotFormValues> = {
   orgId: "",
 };
 
-export function ChatbotModal({ orgName, orgId, onRefresh }) {
+export function ChatbotModal({ orgName, orgId }) {
   const [open, setOpen] = useState(false);
-  const { toast } = useToast()
+  const { toast } = useToast();
   const form = useForm<ChatbotFormValues>({
     resolver: zodResolver(chatbotFormSchema),
     defaultValues,
@@ -86,7 +87,7 @@ export function ChatbotModal({ orgName, orgId, onRefresh }) {
         title: "Chatbot created!",
         description: `${res.message}`,
       });
-      onRefresh()
+      window.location.reload();
     }else{
       toast({
         title: "Failed",

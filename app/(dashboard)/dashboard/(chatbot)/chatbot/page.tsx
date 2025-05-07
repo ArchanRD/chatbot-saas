@@ -1,16 +1,20 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
-import { ChatbotModal } from "@/components/modals/ChatbotModal";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  downloadFile,
-  fetchChatbotDetailsByOrgId,
-  getFileByChatbotId,
-  removeFileById,
-} from "@/lib/actions";
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+
 import { useEffect, useState } from "react";
+import { Bot, Globe, BookOpen, Info, Hammer, Check, Copy } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ChatbotInfo } from "@/components/chatbot/chatbot-info";
+import { ChatbotCors } from "@/components/chatbot/chatbot-cors";
+import { ChatbotKnowledge } from "@/components/chatbot/chatbot-knowledge";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import {
+  fetchChatbotDetailsByOrgId,
+  fetchOrgDetailsById,
+  getFileByChatbotId,
+} from "@/lib/actions";
+import { Chatbot, Files, Organisation } from "@/db/schema";
 import {
   Dialog,
   DialogContent,
@@ -19,150 +23,90 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Chatbot } from "@/db/schema";
-import ChatbotCard from "@/components/ChatbotCard";
-import { UploadFile } from "@/components/UploadFile";
-import { Files, FileText } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { Spinner } from "@/components/ui/spinner";
+import { Card } from "@/components/ui/card";
+import { ChatbotModal } from "@/components/modals/ChatbotModal";
+import { atomOneLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import SyntaxHighlighter from "react-syntax-highlighter";
 
-type OrgDetails = {
-  orgId: string;
-  orgName: string;
-};
+const tabs = [
+  {
+    id: "info",
+    label: "Info",
+    icon: Info,
+  },
+  {
+    id: "cors",
+    label: "CORS",
+    icon: Globe,
+  },
+  {
+    id: "knowledge",
+    label: "Knowledge",
+    icon: BookOpen,
+  },
+  {
+    id: "integration",
+    label: "Integration",
+    icon: Hammer,
+  },
+];
 
-type File = {
-  id: string | null;
-  path: string | null;
-  name: string | null;
-  type: string | null;
-};
-
-const Page = () => {
-  const session = useSession();
-  const [loading, setloading] = useState(false);
-  const [chatbot, setChatbot] = useState<Chatbot>();
-  const [isOrgIdSet, setIsOrgIdSet] = useState<boolean>(true);
-  const [orgDetails, setOrgDetails] = useState<OrgDetails>();
-  const [uploadFileOpen, setUploadFileOpen] = useState(false);
-  const [file, setFile] = useState<File>({
-    id: null,
-    path: null,
-    name: null,
-    type: null,
-  });
-  const [removeLoading, setRemoveLoading] = useState(false);
-  const [downloadLoading, setdownloadLoading] = useState(false);
+export default function ChatbotPage() {
+  const [activeTab, setActiveTab] = useState("info");
+  const [chatbotDetails, setChatbotDetails] = useState<Chatbot>();
+  const [orgDetails, setOrgDetails] = useState<Organisation>();
+  const [knowledgeBase, setKnowledgeBase] = useState<Files>();
+  const { data, status, update } = useSession();
+  const router = useRouter();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const handleRefresh = () => {
-    setRefreshTrigger((prev) => prev + 1);
-  };
-
+  const [copied, setCopied] = useState(false);
+  const integrationCode = '<script src="' + process.env.NEXT_PUBLIC_APP_URL + '/widget/chatbot.js" data-api-key="YOUR_API_KEY"></script>';
+  
   useEffect(() => {
-    async function getChatbotDetails() {
-      const orgId = session.data?.user.orgId;
-      const orgName = session.data?.user.orgName;
-      if (!orgId || !orgName) {
-        setIsOrgIdSet(false);
-      }
-
-      setOrgDetails({ orgId: orgId!, orgName: orgName! });
-
-      try {
-        const res = await fetchChatbotDetailsByOrgId(orgId!);
-        if (res.length > 0) {
-          setChatbot(res[0]);
-          if (session.data?.user.chatbotId == null) {
-            await session.update({
-              ...session.data,
-              chatbotId: res[0].id,
-            });
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
+    if (status === "authenticated") {
+      fetchChatbotDetails();
+      fetchOrgDetails();
+      getFile();
+    } else if (status === "unauthenticated") {
+      router.push("/login");
     }
+  }, [status, data, refreshTrigger]);
 
-    if (session.status === "unauthenticated") {
-      return redirect("/login");
-    } else if (session.status === "loading") {
-      setloading(true);
-    } else if (session.status === "authenticated") {
-      getChatbotDetails();
-      setloading(false);
-    }
-  }, [session, refreshTrigger]);
-
-  useEffect(() => {
-    async function getDocument() {
-      if (chatbot === undefined) {
-        return;
-      }
-      try {
-        const data = await getFileByChatbotId(chatbot!.id);
-        if (data.length > 0) {
-          setFile({
-            id: data[0].id,
-            name: data[0].name,
-            path: data[0].url,
-            type: data[0].type,
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    getDocument();
-  }, [chatbot?.id, refreshTrigger]);
-
-  const handleFileRemove = async () => {
-    setRemoveLoading(true);
-    try {
-      const response = await removeFileById(file.id!, file.path!);
-      if (response.error) {
-        toast({
-          title: "Error",
-          description: response.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: response.message,
+  const fetchChatbotDetails = async () => {
+    const chatbotDetails = await fetchChatbotDetailsByOrgId(data!.user!.orgId!);
+    setChatbotDetails(chatbotDetails[0]);
+    // update chatbotId in session if null
+    if (data?.user.chatbotId == null) {
+      await update({
+        ...data,
+        chatbotId: chatbotDetails[0].id,
       });
-
-      setFile({ id: null, name: null, path: null, type: null });
-      setUploadFileOpen(false);
-      handleRefresh();
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Internal error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setloading(false);
-      setRemoveLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="m-2 flex flex-col items-center h-72 justify-center bg-white p-5 rounded-2xl max-w-xl">
-        <Skeleton className="h-[60px] w-[450px] rounded-md" />
-        <Skeleton className="h-[15px] w-[350px] mt-2 rounded-md" />
-        <Skeleton className="h-[15px] w-[350px] mt-2 rounded-md" />
-        <Skeleton className="h-[15px] w-[350px] mt-2 rounded-md" />
-      </div>
-    );
+  const fetchOrgDetails = async () => {
+    const orgDetails = await fetchOrgDetailsById(data!.user!.orgId!);
+    setOrgDetails(orgDetails[0]);
+  };
+
+  const getFile = async () => {
+    const file = await getFileByChatbotId(data!.user!.chatbotId!);
+    if (file.length > 0) {
+      setKnowledgeBase(file[0]);
+    }
+  };
+  if (status === "loading") {
+    return "loading...";
   }
 
-  if (!isOrgIdSet) {
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(integrationCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // redirect on org page if Org not created or id not set in session
+  if (data?.user!.orgId == undefined) {
     return (
       <Dialog open>
         <DialogContent className="sm:max-w-[425px] font-poppins">
@@ -175,7 +119,7 @@ const Page = () => {
               created the organisation then create and try again.
             </DialogDescription>
           </DialogHeader>
-          <Button onClick={() => redirect("/dashboard")}>
+          <Button onClick={() => router.push("/dashboard")}>
             Visit dashboard
           </Button>
         </DialogContent>
@@ -183,128 +127,129 @@ const Page = () => {
     );
   }
 
-  const handleFileDownload = async () => {
-    setdownloadLoading(true);
-    try {
-      const response = await downloadFile(file.path!);
-      console.log(response);
-      const url = URL.createObjectURL(response.data!);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file.name!;
-      a.click();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setdownloadLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-gray-200 h-auto p-3">
-      {chatbot ? (
-        <div className="p-3 flex-1">
-          <ChatbotCard chatbot={chatbot} />
-        </div>
-      ) : (
-        <Card className="w-72 sm:w-[500px] sm:p-10 p-4 shadow-none bg-white">
-          <div className="font-poppins flex sm:items-center justify-center flex-col">
-            <h1 className="mb-1 font-bold text-gray-800 text-xl sm:text-3xl">
-              Create your first chatbot!
-            </h1>
-            <p className="text-gray-500 text-sm sm:text-base w-auto sm:w-96 sm:text-center mb-5">
-              You have not created any chatbot yet. Start by creating chatbot.
-            </p>
-            <ChatbotModal
-              onRefresh={handleRefresh}
-              orgName={orgDetails?.orgName}
-              orgId={orgDetails?.orgId}
-            />
-          </div>
-        </Card>
-      )}
-
-      <div className="py-3">
-        <Card className="w-full max-w-xl !rounded-2xl !border-none !shadow-none">
-          <CardHeader className="font-poppins flex flex-row items-center justify-between space-y-0 pb-2">
-            <div className="">
-              <div className="flex items-center space-x-2">
-                <Files fontVariant="outline" className="text-xs font-normal" />
-                <h1 className="font-medium">Documents</h1>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                File name will be prefixed with organisation name to avoid
-                filenames redundancy.
+  if (chatbotDetails?.id) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-6xl font-inter">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-gray-100 p-3 rounded-lg">
+              <Bot className="h-8 w-8 text-gray-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Chatbot Details</h1>
+              <p className="text-gray-500">
+                Configure and manage your chatbot.
               </p>
             </div>
-          </CardHeader>
-          <hr />
-          {file.name !== null ? (
-            <CardContent className="space-y-4 p-6 font-poppins">
-              <div className="">
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <FileText />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <nav className="flex space-x-1 rounded-lg bg-gray-100 p-1 overflow-x-auto">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                  "min-w-[100px] flex-shrink-0 relative z-10",
+                  activeTab === tab.id
+                    ? "bg-white text-gray-800 shadow"
+                    : "text-gray-600 hover:text-gray-800"
+                )}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+                {tab.label === "CORS" && orgDetails?.cors_domain === "" && (
+                  <span className="bg-red-500 h-2 w-2 rounded-full absolute right-2 top-2"></span>
+                )}
+                {tab.label === "Knowledge" && !knowledgeBase?.url && (
+                  <span className="bg-red-500 h-2 w-2 rounded-full absolute right-1 top-2"></span>
+                )}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <div className="bg-white rounded-lg border shadow-sm p-6">
+          {activeTab === "info" && <ChatbotInfo info={chatbotDetails} />}
+          {activeTab === "cors" && (
+            <ChatbotCors info={orgDetails!.cors_domain!} />
+          )}
+          {activeTab === "knowledge" && (
+            <ChatbotKnowledge
+              knowledgeBase={knowledgeBase}
+              onRefresh={() => {
+                setKnowledgeBase(undefined); // Optimistically clear file
+                setRefreshTrigger((prev) => prev + 1);
+              }}
+            />
+          )}
+          {activeTab === "integration" && (
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="">
+                    <pre className=" rounded-2xl  overflow-x-auto">
+                      <SyntaxHighlighter language={"HTML"} style={atomOneLight}>
+                        {integrationCode}
+                      </SyntaxHighlighter>
+                    </pre>
+                    <div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={copyToClipboard}
+                        className=""
+                      >
+                        {copied ? (<>
+                          <h2>Copied</h2>
+                          <Check className="h-4 w-4 text-green-500" />
+                        </>
+                        ) : (<>
+                        <h2>Copy</h2>
+                          <Copy className="h-4 w-4" />
+                        </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                  <h1 className="break-all">{file.name}</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={handleFileDownload}
-                    variant={"default"}
-                    disabled={downloadLoading}
-                  >
-                    {downloadLoading ? (
-                      <Spinner className="text-white" />
-                    ) : (
-                      "Download"
-                    )}
-                  </Button>
-                  <Button onClick={handleFileRemove} variant={"destructive"}>
-                    {removeLoading ? (
-                      <Spinner className="text-white" />
-                    ) : (
-                      "Remove"
-                    )}
-                  </Button>
                 </div>
               </div>
-            </CardContent>
-          ) : (
-            <CardContent className="space-y-4 p-6 font-poppins">
-              <p className="text-sm text-muted-foreground">
-                Upload file containing knowledge to provide context to your
-                chatbot. Accepted file types are txt and pdf.
-              </p>
-              <Button
-                onClick={() => {
-                  if (chatbot === undefined) {
-                    toast({
-                      title: "Error",
-                      description: "You need to create chatbot first",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  setUploadFileOpen(true);
-                }}
-              >
-                Upload file
-              </Button>
-              <UploadFile
-                open={uploadFileOpen}
-                onOpenChange={setUploadFileOpen}
-                key={1}
-                orgDetails={orgDetails}
-                chatbotId={chatbot?.id}
-                onRefresh={handleRefresh}
-              />
-            </CardContent>
+            </div>
           )}
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-6xl font-inter">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-gray-100 p-3 rounded-lg">
+              <Bot className="h-8 w-8 text-gray-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Chatbot Details</h1>
+              <p className="text-gray-500">
+                Configure and manage your chatbot.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="h-0.5 w-full bg-gray-300"></div>
+        <Card className="w-full sm:p-10 p-4 shadow-none border-none bg-transparent md:ml-6">
+          <div className="font-inter flex sm:items-start justify-center flex-col">
+            <h1 className="mb-1 font-bold text-gray-800 text-lg sm:text-xl lg:text-2xl">
+              Create your first chatbot!
+            </h1>
+            <p className="text-gray-500 text-sm sm:text-base w-auto sm:w-96 mb-5">
+              You have not created any chatbot yet. Start by creating chatbot.
+            </p>
+            <ChatbotModal orgName={orgDetails?.name} orgId={orgDetails?.id} />
+          </div>
         </Card>
       </div>
-    </div>
-  );
-};
-
-export default Page;
+    );
+  }
+}
