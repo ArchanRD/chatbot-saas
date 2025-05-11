@@ -38,27 +38,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon_io/android-chrome-512x512.png"/>
         <link rel="manifest" href="/favicon_io/site.webmanifest" />
         
-        <Script
-        id="conversy-chatbot-script"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.__CHAT_CONFIG__ = {
-                apiKey: "${process.env.CONVERSY_API_KEY}",
-                theme: {
-                  primary: '#2563eb',
-                  secondary: '#ffffff',
-                  text: '#1f2937',
-                  bubble: '#2563eb'
-                },
-                position: 'bottom-right',
-                title: 'Chat with us',
-                placeholder: 'Type your message...'
-              };
-            `,
-          }}
-        />
-        <Script src="/widget/chatbot.js" async />
-        <Script src="/widget/chat-init.js" async />
+        <script src="http://localhost:3000/widget/chatbot.js" data-api-key="e95e533b-abf4-4480-bf55-f0bc494ff976-fab8c4bf3cbf9b817d3601014cb106a28e6534ed23aa0c8bab41bb5b24a5b987-1742906640007"></script>
       </head>
       <ClientAuthProvider>
         <body>
