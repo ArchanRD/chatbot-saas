@@ -3,7 +3,7 @@ import { ClientAuthProvider } from "@/context/ClientAuthProvider";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import Script from "next/script";
-// import Script from "next/script";
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -37,8 +37,16 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="192x192" href="/favicon_io/android-chrome-192x192.png"/>
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon_io/android-chrome-512x512.png"/>
         <link rel="manifest" href="/favicon_io/site.webmanifest" />
-        
-        <script src="http://localhost:3000/widget/chatbot.js" data-api-key="e95e533b-abf4-4480-bf55-f0bc494ff976-fab8c4bf3cbf9b817d3601014cb106a28e6534ed23aa0c8bab41bb5b24a5b987-1742906640007"></script>
+        {/* Conversy support bot integration  */}
+        <Script src="http://localhost:3000/widget/chatbot.js" data-api-key={process.env.NEXT_PUBLIC_CONVERSY_SUPPORT_BOT_API_KEY}></Script>
+        {/* Google tag (gtag.js) */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-ZCKF801L4B"></Script>
+        <Script>
+          {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+           gtag('config', 'G-ZCKF801L4B');`}
+        </Script>       
       </head>
       <ClientAuthProvider>
         <body>
