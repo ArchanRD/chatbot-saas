@@ -41,7 +41,7 @@ export default function RootLayout({
         <Script src="http://localhost:3000/widget/chatbot.js" data-api-key={process.env.NEXT_PUBLIC_CONVERSY_SUPPORT_BOT_API_KEY}></Script>
         {/* Google tag (gtag.js) */}
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-ZCKF801L4B"></Script>
-        <Script>
+        <Script id="google-analytics" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
