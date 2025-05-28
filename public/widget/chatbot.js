@@ -134,7 +134,7 @@
     chatPanel.style.width = "350px";
     chatPanel.style.height = "500px";
     chatPanel.style.backgroundColor = "#ffffff";
-    chatPanel.style.borderRadius = "12px";
+    chatPanel.style.borderRadius = "20px";
     chatPanel.style.boxShadow = "0 5px 20px rgba(0,0,0,0.15)";
     chatPanel.style.display = "none";
     chatPanel.style.flexDirection = "column";
@@ -147,13 +147,13 @@
     // Create chat header
     const chatHeader = document.createElement("div");
     chatHeader.style.padding = "16px";
-    chatHeader.style.backgroundColor = "#2563eb";
+    chatHeader.style.backgroundColor = "#292929";
     chatHeader.style.color = "#ffffff";
     chatHeader.style.fontFamily = "system-ui, -apple-system, sans-serif";
     chatHeader.style.fontSize = "16px";
     chatHeader.style.fontWeight = "600";
-    chatHeader.style.borderTopLeftRadius = "12px";
-    chatHeader.style.borderTopRightRadius = "12px";
+    chatHeader.style.borderTopLeftRadius = "20px";
+    chatHeader.style.borderTopRightRadius = "20px";
     chatHeader.style.display = "flex";
     chatHeader.style.justifyContent = "space-between";
     chatHeader.style.alignItems = "center";
@@ -183,7 +183,7 @@
     // Create input area
     const inputArea = document.createElement("div");
     inputArea.style.borderTop = "1px solid #e5e7eb";
-    inputArea.style.padding = "12px 16px";
+    inputArea.style.padding = "8px 16px";
     inputArea.style.display = "flex";
     inputArea.style.alignItems = "center";
     inputArea.style.gap = "8px";
@@ -194,9 +194,9 @@
     inputField.type = "text";
     inputField.placeholder = "Type your message...";
     inputField.style.flex = "1";
-    inputField.style.padding = "10px 12px";
-    inputField.style.borderRadius = "8px";
-    inputField.style.border = "1px solid #e5e7eb";
+    inputField.style.padding = "6px 12px";
+    inputField.style.borderRadius = "20px";
+    // inputField.style.border = "1px solid #e5e7eb";
     inputField.style.outline = "none";
     inputField.style.fontFamily = "system-ui, -apple-system, sans-serif";
     inputField.style.fontSize = "14px";
@@ -205,10 +205,10 @@
     sendButton = document.createElement("button");
     sendButton.id = "conversy-send";
     sendButton.type = "button";
-    sendButton.style.backgroundColor = "#2563eb";
+    sendButton.style.backgroundColor = "#292929";
     sendButton.style.color = "#ffffff";
     sendButton.style.border = "none";
-    sendButton.style.borderRadius = "8px";
+    sendButton.style.borderRadius = "20px";
     sendButton.style.padding = "10px 16px";
     sendButton.style.cursor = "pointer";
     sendButton.style.fontFamily = "system-ui, -apple-system, sans-serif";
@@ -571,13 +571,13 @@
     const messageElement = document.createElement("div");
     messageElement.className = `conversy-message conversy-${role}-message`;
     messageElement.style.maxWidth = "80%";
-    messageElement.style.padding = "12px";
-    messageElement.style.borderRadius = "12px";
+    messageElement.style.padding = "10px 14px";
+    messageElement.style.borderRadius = "20px";
     messageElement.style.wordBreak = "break-word";
 
     if (role === "user") {
       messageElement.style.alignSelf = "flex-end";
-      messageElement.style.backgroundColor = "#2563eb";
+      messageElement.style.backgroundColor = "#292929";
       messageElement.style.color = "#ffffff";
     } else {
       messageElement.style.alignSelf = "flex-start";
@@ -604,8 +604,8 @@
     indicatorElement.className = "conversy-message conversy-bot-message";
     indicatorElement.style.alignSelf = "flex-start";
     indicatorElement.style.backgroundColor = "#f3f4f6";
-    indicatorElement.style.padding = "12px";
-    indicatorElement.style.borderRadius = "12px";
+    indicatorElement.style.padding = "10px 14px";
+    indicatorElement.style.borderRadius = "20px";
     indicatorElement.style.display = "flex";
     indicatorElement.style.gap = "4px";
 
