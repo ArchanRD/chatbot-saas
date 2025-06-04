@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS "organisation" (
 	"plan" varchar DEFAULT 'free' NOT NULL,
 	"status" varchar DEFAULT 'active' NOT NULL,
 	"settings" jsonb DEFAULT '{}'::jsonb NOT NULL,
+	"cors_domain" text DEFAULT '' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "organisation_api_key_unique" UNIQUE("api_key")
@@ -62,10 +63,12 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
 	"email" text NOT NULL,
 	"name" text DEFAULT 'User' NOT NULL,
-	"password" varchar NOT NULL,
+	"google_id" text,
+	"image" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "users_email_unique" UNIQUE("email")
+	CONSTRAINT "users_email_unique" UNIQUE("email"),
+	CONSTRAINT "users_google_id_unique" UNIQUE("google_id")
 );
 --> statement-breakpoint
 DO $$ BEGIN

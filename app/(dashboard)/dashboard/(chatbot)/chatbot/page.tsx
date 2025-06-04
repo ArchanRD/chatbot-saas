@@ -76,7 +76,7 @@ export default function ChatbotPage() {
     const chatbotDetails = await fetchChatbotDetailsByOrgId(data!.user!.orgId!);
     setChatbotDetails(chatbotDetails[0]);
     // update chatbotId in session if null
-    if (data?.user.chatbotId == null) {
+    if (data?.user.chatbotId == null && chatbotDetails.length > 0) {
       await update({
         ...data,
         chatbotId: chatbotDetails[0].id,

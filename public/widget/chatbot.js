@@ -493,7 +493,7 @@
    * Send message to backend API
    */
   function sendMessageToBackend(message) {
-    const url = "https://conversy.archan.dev/api/chat";
+    const url = "http://localhost:3000/api/chat";
     return fetch(url, {
       method: "POST",
       headers: {

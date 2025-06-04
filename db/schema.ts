@@ -16,7 +16,8 @@ export const usersTable = pgTable("users", {
     .default(sql`uuid_generate_v4()`),
   email: text("email").notNull().unique(),
   name: text("name").notNull().default("User"),
-  password: varchar("password").notNull(),
+  googleId: text("google_id").unique(),
+  image: text("image"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -26,7 +27,7 @@ export const organisationTable = pgTable("organisation", {
   id: uuid("id")
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
-  user_id: uuid("user_id").references(() => usersTable.id),
+  user_id: text("user_id").references(() => usersTable.googleId),
   api_key: text("api_key").unique(),
   name: text("name").notNull(),
   plan: varchar("plan").notNull().default("free"),

@@ -38,7 +38,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon_io/android-chrome-512x512.png"/>
         <link rel="manifest" href="/favicon_io/site.webmanifest" />
         {/* Conversy support bot integration  */}
-        <Script src="https://conversy.archan.dev/widget/chatbot.js" data-api-key={process.env.NEXT_PUBLIC_CONVERSY_SUPPORT_BOT_API_KEY}></Script>
+        <Script src="http://localhost:3000/widget/chatbot.js" data-api-key={process.env.NEXT_PUBLIC_CONVERSY_SUPPORT_BOT_API_KEY}></Script>
         {/* Google tag (gtag.js) */}
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-ZCKF801L4B"></Script>
         <Script id="google-analytics" strategy="afterInteractive">

@@ -1,6 +1,6 @@
 {
-  "id": "718e6307-940e-4c6e-a1f1-dd909edb336e",
-  "prevId": "b2896d67-133c-42e6-85a9-31d279fef057",
+  "id": "48163c21-ea87-4028-918b-5428bf6699d9",
+  "prevId": "11e4c190-551f-4237-b955-74a3ce050893",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -385,7 +385,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -446,15 +446,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "organisation_user_id_users_id_fk": {
-          "name": "organisation_user_id_users_id_fk",
+        "organisation_user_id_users_google_id_fk": {
+          "name": "organisation_user_id_users_google_id_fk",
           "tableFrom": "organisation",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
           "columnsTo": [
-            "id"
+            "google_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -498,11 +498,17 @@
           "notNull": true,
           "default": "'User'"
         },
-        "password": {
-          "name": "password",
-          "type": "varchar",
+        "google_id": {
+          "name": "google_id",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -528,6 +534,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
+          ]
+        },
+        "users_google_id_unique": {
+          "name": "users_google_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "google_id"
           ]
         }
       },

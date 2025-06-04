@@ -22,17 +22,45 @@ export const getUserDetailsByEmail = async (email: string) => {
   return await db.select().from(usersTable).where(eq(usersTable.email, email));
 };
 
-export const verifyUserPassword = async (user: Users, password: string) => {
-  return await bcrypt.compare(password, user.password);
-};
-
-export const createUser = async (email: string, password: string) => {
-  const hashedPassword = await bcrypt.hash(password, 10);
-  return await db.insert(usersTable).values({
-    email: email,
-    password: hashedPassword,
-    name: email.split("@")[0],
-  });
+export const createUserFromGoogleAuth = async (email: string, name: string, googleId: string, image?: string) => {
+  try {
+    // Check if user already exists with this email or Google ID
+    const existingUser = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email));
+    
+    if (existingUser.length > 0) {
+      // If user exists but doesn't have a Google ID, update it
+      if (!existingUser[0].googleId) {
+        await db
+          .update(usersTable)
+          .set({
+            googleId: googleId,
+            image: image || existingUser[0].image,
+            name: name || existingUser[0].name
+          })
+          .where(eq(usersTable.email, email));
+      }
+      return { error: false, message: "User already exists", user: existingUser[0] };
+    }
+    
+    // Create new user
+    const newUser = await db
+      .insert(usersTable)
+      .values({
+        email: email,
+        name: name || email.split("@")[0],
+        googleId: googleId,
+        image: image || null
+      })
+      .returning();
+    
+    return { error: false, message: "User created successfully", user: newUser[0] };
+  } catch (error) {
+    console.error("Error creating user from Google auth:", error);
+    return { error: true, message: "Failed to create user" };
+  }
 };
 
 export const createOrganisation = async (orgName: string, userId: string) => {
