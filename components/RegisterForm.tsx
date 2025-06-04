@@ -11,7 +11,7 @@ type Notification = {
 };
 
 const RegisterForm = () => {
-  const [notification, setNotification] = useState<Notification>({
+  const [notification] = useState<Notification>({
     message: "",
     type: "",
   });

@@ -10,8 +10,6 @@ import {
   usersTable,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcrypt";
-import { Users } from "@/db/schema";
 import { supabase } from "./supabaseClient";
 
 export const getUserByEmail = async (email: string) => {

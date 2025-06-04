@@ -11,7 +11,7 @@ type Notification = {
 };
 
 const LoginForm = () => {
-  const [notification, setNotification] = useState<Notification>({
+  const [notification] = useState<Notification>({
     message: "",
     type: "",
   });
@@ -67,7 +67,7 @@ const LoginForm = () => {
           </div>
 
           <p className="mt-5 text-left">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-indigo-600 hover:underline">
               Create an account
             </Link>
