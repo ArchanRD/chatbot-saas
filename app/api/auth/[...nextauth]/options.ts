@@ -1,50 +1,14 @@
 import { NextAuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import {
-  getUserDetailsByEmail,
-  verifyUserPassword,
-} from "@/lib/actions";
+import { JWT } from "next-auth/jwt";
+import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
+import { createUserFromGoogleAuth } from "@/lib/actions";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    Credentials({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
-        }
-        try {
-          const users = await getUserDetailsByEmail(credentials.email!);
-          const user = users[0];
-
-          if (!user) {
-            throw new Error("User not found");
-          }
-          const isPasswordCorrect = await verifyUserPassword(
-            user,
-            credentials.password
-          );
-
-          if (!isPasswordCorrect) {
-            throw new Error("Invalid credentials");
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
-        } catch (error) {
-          console.log("Authentication error:", error);
-          throw error;
-        }
-      },
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   session: {
@@ -70,15 +34,28 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user, account, trigger, session }) {
+    async jwt({ token, user, account, trigger, session }): Promise<JWT> {
+      // Initial sign in with Google
       if (account && user) {
+        // Create or update user in database
+        if (account.provider === 'google' && user.email) {
+          await createUserFromGoogleAuth(
+            user.email,
+            user.name || '',
+            account.providerAccountId,
+            user.image || undefined
+          );
+        }
+        
         return {
           ...token,
-          id: user.id,
-          email: user.email,
-          name: user.name,
+          id: account.providerAccountId, // Use Google ID directly as the user ID
+          email: user.email || token.email || '',
+          name: user.name || token.name || '',
+          picture: user.image || null,
         };
-      } else if (trigger === "update") {
+      } else if (trigger === "update" && session) {
+        // Update session data
         return {
           ...token,
           orgId: session.orgId || token.orgId,
@@ -93,9 +70,10 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           ...session.user,
-          id: token.id,
+          id: token.id || token.sub,
           email: token.email,
           name: token.name,
+          image: token.picture,
           orgId: token.orgId || null,
           orgName: token.orgName || null,
           chatbotId: token.chatbotId || null,

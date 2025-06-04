@@ -2,10 +2,11 @@
 import Link from "next/link";
 import { LayoutDashboard, CirclePlus } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 
 export function Sidebar() {
   const session = useSession();
+  const pathname = usePathname();
 
   if (session.status === "unauthenticated") {
     return redirect("/login");
@@ -19,24 +20,37 @@ export function Sidebar() {
   ];
 
   const renderNavItems = (items, fullView = true) => {
-    return items.map((item) => (
-      <Link
-        key={item.label}
-        href={item.link}
-        className={`
-          flex items-center 
-          ${
-            fullView
-              ? "gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg"
-              : "justify-center p-2 hover:bg-gray-100"
-          }
-        `}
-        title={!fullView ? item.label : undefined}
-      >
-        <item.icon size={20} />
-        {fullView && <span>{item.label}</span>}
-      </Link>
-    ));
+    return items.map((item) => {
+      const isActive = pathname === item.link || 
+                      (item.link !== '/dashboard' && pathname.startsWith(item.link));
+      
+      return (
+        <Link
+          key={item.label}
+          href={item.link}
+          className={`
+            flex items-center 
+            ${
+              fullView
+                ? `gap-3 p-2 rounded-lg ${
+                    isActive 
+                      ? "bg-gray-100 text-gray-800 font-medium border-l-4 border-gray-800" 
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`
+                : `justify-center p-2 ${
+                    isActive 
+                      ? "bg-gray-100 text-gray-800 border-l-4 border-gray-800" 
+                      : "hover:bg-gray-100"
+                  }`
+            }
+          `}
+          title={!fullView ? item.label : undefined}
+        >
+          <item.icon size={20} className={isActive ? "text-gray-800" : ""} />
+          {fullView && <span>{item.label}</span>}
+        </Link>
+      );
+    });
   };
 
   return (
