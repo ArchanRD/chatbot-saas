@@ -68,7 +68,7 @@
    * Fetch chatbot customization from server
    */
   function fetchChatbotCustomization(apiKey) {
-    const configUrl = `https://conversy.archan.dev/api/widget-config?apiKey=${encodeURIComponent(
+    const configUrl = `http://localhost:3000/api/widget-config?apiKey=${encodeURIComponent(
       apiKey
     )}`;
 
@@ -94,7 +94,7 @@
           welcome_mesg: data.welcome_mesg || "Hello! How can I help you today?",
           tone: data.tone || "friendly",
           answer_style: data.answer_style || "concise",
-          name: data.name || "Chatbot",
+          name: data.name || "SupportBot",
           description: data.description || "AI Assistant",
           ...data,
         };
@@ -287,7 +287,7 @@
     chatHeader.style.alignItems = "center";
 
     chatHeader.innerHTML = `
-      <div id="conversy-header-title">Chat</div>
+      <div id="conversy-header-title">SupportBot</div>
       <div id="conversy-close-button" style="cursor:pointer;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -633,7 +633,7 @@
    * Send message to backend API
    */
   function sendMessageToBackend(message) {
-    const url = "https://conversy.archan.dev/api/chat";
+    const url = "http://localhost:3000/api/chat";
     
     // Include customization options in the request if available
     const requestBody = {
@@ -901,10 +901,10 @@
     infoElement.style.display = 'none';
     infoElement.textContent = '';
     
-    // Update header title with chatbot name
+    // Update header title to SupportBot
     const headerTitle = document.getElementById('conversy-header-title');
-    if (headerTitle && customization.name) {
-      headerTitle.textContent = customization.name;
+    if (headerTitle) {
+      headerTitle.textContent = "SupportBot";
     }
   }
   
@@ -932,13 +932,13 @@
       // Add error handling
       imgElement.onerror = function() {
         // Fallback to default logo on error
-        imgElement.src = "https://conversy.archan.dev/Conversy-logo-white.png";
+        imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
         imgElement.style.padding = "5px";
         console.warn("Failed to load custom logo, using default");
       };
     } else {
       // Use default logo
-      imgElement.src = "https://conversy.archan.dev/Conversy-logo-white.png";
+      imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
       imgElement.alt = "Conversy Logo";
       imgElement.style.padding = "5px";
       imgElement.style.height = "100%";
@@ -974,7 +974,7 @@
     brandingFooter.style.textAlign = 'center';
     brandingFooter.style.marginTop = 'auto';
     brandingFooter.style.background = `linear-gradient(90deg, ${primaryColor}, ${darkerColor})`;
-    brandingFooter.innerHTML = 'Powered by <a href="https://conversy.archan.dev" target="_blank" style="color: #ffffff; text-decoration: none;">Conversy</a>';
+    brandingFooter.innerHTML = 'Powered by <a href="http://localhost:3000" target="_blank" style="color: #ffffff; text-decoration: none;">Conversy</a>';
     
     // Add to chat panel
     if (chatPanel) {
