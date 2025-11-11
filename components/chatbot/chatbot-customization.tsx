@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 import { toast } from "@/hooks/use-toast";
-import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -267,7 +266,7 @@ export function ChatbotCustomization({ info, onUpdate }: ChatbotCustomizationPro
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500">
-              Determine how detailed or brief your chatbot's responses should be.
+              Determine how detailed or brief your chatbot&apos;s responses should be.
             </p>
           </div>
         </div>

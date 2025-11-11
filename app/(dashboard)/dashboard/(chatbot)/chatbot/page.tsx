@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bot, Globe, BookOpen, Info, Hammer, Check, Copy, Sparkles, Palette, Loader } from "lucide-react";
+import { Bot, Globe, BookOpen, Info, Hammer, Check, Copy, Sparkles, Palette } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ChatbotInfo } from "@/components/chatbot/chatbot-info";
@@ -18,6 +18,17 @@ import {
   getFileByChatbotId,
 } from "@/lib/actions";
 import { Chatbot, Files, Organisation } from "@/db/schema";
+
+// Define the ChatbotWithTheme type to match what ChatbotTheme component expects
+type ChatbotWithTheme = Chatbot & {
+  theme?: {
+    primary_color?: string;
+    secondary_color?: string;
+    font_size?: string;
+    border_radius?: number;
+    chat_position?: string;
+  };
+}
 import {
   Dialog,
   DialogContent,
@@ -66,7 +77,7 @@ const tabs = [
 
 export default function ChatbotPage() {
   const [activeTab, setActiveTab] = useState("info");
-  const [chatbotDetails, setChatbotDetails] = useState<Chatbot>();
+  const [chatbotDetails, setChatbotDetails] = useState<ChatbotWithTheme>();
   const [orgDetails, setOrgDetails] = useState<Organisation>();
   const [knowledgeBase, setKnowledgeBase] = useState<Files>();
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +87,7 @@ export default function ChatbotPage() {
   const [copied, setCopied] = useState(false);
   const integrationCode = '<script src="' + process.env.NEXT_PUBLIC_APP_URL + '/widget/chatbot.js" data-api-key="YOUR_API_KEY"></script>';
   
+  console.log(isLoading)
   useEffect(() => {
     if (status === "authenticated") {
       fetchChatbotDetails();
@@ -88,13 +100,21 @@ export default function ChatbotPage() {
 
   const fetchChatbotDetails = async () => {
     const chatbotDetails = await fetchChatbotDetailsByOrgId(data!.user!.orgId!);
-    setChatbotDetails(chatbotDetails[0]);
-    // update chatbotId in session if null
-    if (data?.user.chatbotId == null && chatbotDetails.length > 0) {
-      await update({
-        ...data,
-        chatbotId: chatbotDetails[0].id,
-      });
+    if (chatbotDetails.length > 0) {
+      // Convert the theme from unknown to the expected type
+      const chatbotWithTheme: ChatbotWithTheme = {
+        ...chatbotDetails[0],
+        theme: chatbotDetails[0].theme as ChatbotWithTheme['theme']
+      };
+      setChatbotDetails(chatbotWithTheme);
+      
+      // update chatbotId in session if null
+      if (data?.user.chatbotId == null) {
+        await update({
+          ...data,
+          chatbotId: chatbotDetails[0].id,
+        });
+      }
     }
   };
 
@@ -280,7 +300,7 @@ export default function ChatbotPage() {
           )}
           {activeTab === "theme" && (
             <ChatbotTheme 
-              info={chatbotDetails as any} 
+              info={chatbotDetails}
               onUpdate={async (data) => {
                 try {
                   setIsLoading(true);

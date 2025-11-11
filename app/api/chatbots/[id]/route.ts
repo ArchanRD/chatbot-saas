@@ -5,8 +5,9 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id: chatbotId } = await context.params;
   try {
     // Get the session to verify the user is authenticated
     const session = await getServerSession(authOptions);
@@ -17,8 +18,7 @@ export async function PATCH(
       );
     }
 
-    // Get the chatbot ID from the URL params
-    const chatbotId = params.id;
+    // Validate chatbot ID
     if (!chatbotId) {
       return NextResponse.json(
         { error: "Chatbot ID is required" },
