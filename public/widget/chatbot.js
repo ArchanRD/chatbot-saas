@@ -44,56 +44,93 @@
       return;
     }
 
-    // If not fetching config, just create the DOM and event listeners
+    // Create the DOM and event listeners
     createWidgetDOM();
     initEventListeners();
-
-    // Fetch configuration from server
-    // fetchConfig(apiKey)
-    //   .then(config => {
-    //     widgetConfig = config;
-    //     createWidgetDOM();
-    //     initEventListeners();
-    //   })
-    //   .catch(error => {
-    //     console.error('Conversy: Failed to load widget configuration', error);
-    //   });
+    
+    // Add markdown styles
+    addMarkdownStyles();
   }
 
   /**
-   * Fetch widget configuration from server
+   * Add markdown styles to the document
    */
-  // function fetchConfig(apiKey) {
-  //   const configUrl = `http://localhost:3000/api/widget-config?apiKey=${encodeURIComponent(
-  //     apiKey
-  //   )}`;
-
-  //   return fetch(configUrl)
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error(`Failed to fetch config: ${response.status}`);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((config) => {
-  //       // Apply default values for any missing properties
-  //       return {
-  //         theme: {
-  //           primary: "#2563eb",
-  //           secondary: "#ffffff",
-  //           text: "#1f2937",
-  //           bubble: "#2563eb",
-  //           ...(config.theme || {}),
-  //         },
-  //         position: config.position || "bottom-right",
-  //         title: config.title || "Chat Support",
-  //         placeholder: config.placeholder || "Ask anything...",
-  //         welcomeMessage:
-  //           config.welcomeMessage || "Hello! How can I help you today?",
-  //         ...config,
-  //       };
-  //     });
-  // }
+  function addMarkdownStyles() {
+    if (document.getElementById('conversy-markdown-styles')) return;
+    
+    const styleEl = document.createElement('style');
+    styleEl.id = 'conversy-markdown-styles';
+    styleEl.textContent = `
+      .conversy-markdown-content {
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      .conversy-markdown-content h1,
+      .conversy-markdown-content h2,
+      .conversy-markdown-content h3,
+      .conversy-markdown-content h4,
+      .conversy-markdown-content h5,
+      .conversy-markdown-content h6 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        font-weight: 600;
+      }
+      .conversy-markdown-content h1 { font-size: 1.4em; }
+      .conversy-markdown-content h2 { font-size: 1.3em; }
+      .conversy-markdown-content h3 { font-size: 1.2em; }
+      .conversy-markdown-content h4 { font-size: 1.1em; }
+      .conversy-markdown-content p {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+      }
+      .conversy-markdown-content ul, 
+      .conversy-markdown-content ol {
+        padding-left: 1.5em;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+      }
+      .conversy-markdown-content code {
+        font-family: monospace;
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 0.1em 0.3em;
+        border-radius: 3px;
+        font-size: 0.9em;
+      }
+      .conversy-markdown-content pre {
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 0.5em;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin: 0.5em 0;
+      }
+      .conversy-markdown-content pre code {
+        background-color: transparent;
+        padding: 0;
+      }
+      .conversy-markdown-content a {
+        color: inherit;
+        text-decoration: underline;
+      }
+      .conversy-markdown-content blockquote {
+        border-left: 3px solid #a0aec0;
+        padding-left: 0.5em;
+        margin-left: 0.5em;
+        color: #718096;
+      }
+      .conversy-bot-message .conversy-markdown-content code {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      .conversy-bot-message .conversy-markdown-content pre {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      .conversy-user-message .conversy-markdown-content code {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .conversy-user-message .conversy-markdown-content pre {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
 
   /**
    * Create all DOM elements for the chat widget
@@ -493,7 +530,7 @@
    * Send message to backend API
    */
   function sendMessageToBackend(message) {
-    const url = "https://conversy.archan.dev/api/chat";
+    const url = "http://localhost:3000/api/chat";
     return fetch(url, {
       method: "POST",
       headers: {
@@ -585,14 +622,80 @@
       messageElement.style.color = "#1f2937";
     }
 
-    // Handle markdown links
-    const formattedMessage = message.replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" style="color: inherit; text-decoration: underline;">$1</a>'
-    );
+    // Create a container for the markdown content
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'conversy-markdown-content';
+    
+    // Process the message with our custom markdown renderer
+    contentContainer.innerHTML = renderMarkdown(message);
 
-    messageElement.innerHTML = formattedMessage;
+    messageElement.appendChild(contentContainer);
     return messageElement;
+  }
+  
+  /**
+   * Simple markdown renderer that handles common elements
+   */
+  function renderMarkdown(text) {
+    if (typeof text !== 'string') {
+      text = String(text || '');
+    }
+    
+    // Sanitize the text first
+    text = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    
+    // Process code blocks first (```code```)
+    text = text.replace(/```([\s\S]*?)```/g, function(match, code) {
+      return '<pre><code>' + code.trim() + '</code></pre>';
+    });
+    
+    // Process inline code (`code`)
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Process headings (# Heading)
+    text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    
+    // Process bold (**text**)
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Process italic (*text*)
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Process links ([text](url))
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, 
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Process unordered lists
+    text = text.replace(/^\s*-\s+(.*$)/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+    
+    // Process ordered lists
+    text = text.replace(/^\s*\d+\.\s+(.*$)/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/gs, function(match) {
+      // Only wrap in <ol> if not already wrapped in <ul>
+      if (!match.startsWith('<ul>')) {
+        return '<ol>' + match + '</ol>';
+      }
+      return match;
+    });
+    
+    // Process paragraphs and line breaks
+    text = text.replace(/\n\s*\n/g, '</p><p>');
+    text = text.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraphs if not already wrapped
+    if (!text.startsWith('<h') && !text.startsWith('<ul') && !text.startsWith('<ol') && !text.startsWith('<p')) {
+      text = '<p>' + text + '</p>';
+    }
+    
+    return text;
   }
 
   /**

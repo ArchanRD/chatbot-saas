@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+#globalLoader {
+  position: fixed;
+  z-index: 9999;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -73,5 +87,14 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
   }
 }
