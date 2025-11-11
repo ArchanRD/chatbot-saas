@@ -23,7 +23,7 @@ import { Chatbot, Files, Organisation } from "@/db/schema";
 type ChatbotWithTheme = Chatbot & {
   theme?: {
     primary_color?: string;
-    secondary_color?: string;
+    text_color?: string;
     font_size?: string;
     border_radius?: number;
     chat_position?: string;

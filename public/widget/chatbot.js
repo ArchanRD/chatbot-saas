@@ -125,6 +125,37 @@
       }
     }
     
+    // Update font size (only for messages/conversation area)
+    if (theme.font_size) {
+      // Map font_size values to pixel sizes
+      let fontSize;
+      switch (theme.font_size) {
+        case "small":
+          fontSize = "0.875rem"; // 14px
+          break;
+        case "large":
+          fontSize = "1.125rem"; // 18px
+          break;
+        case "medium":
+        default:
+          fontSize = "1rem"; // 16px
+          break;
+      }
+      
+      // Apply font size only to messages container (affects user and bot messages)
+      if (messagesContainer) {
+        messagesContainer.style.fontSize = fontSize;
+      }
+      
+      // Update existing message elements if any
+      const existingMessages = messagesContainer?.querySelectorAll('.conversy-message');
+      if (existingMessages) {
+        existingMessages.forEach(messageEl => {
+          messageEl.style.fontSize = fontSize;
+        });
+      }
+    }
+    
     // Update border radius for all elements
     if (theme.border_radius) {
       const borderRadius = `${theme.border_radius}px`;
@@ -154,7 +185,8 @@
     }
     
     if (theme.text_color) {
-      // Store the text color in a CSS variable for bot message styling
+      // Store the text color in CSS variables for both user and bot message styling
+      document.documentElement.style.setProperty('--text-color', theme.text_color);
       document.documentElement.style.setProperty('--bot-text-color', theme.text_color);
     }
   }

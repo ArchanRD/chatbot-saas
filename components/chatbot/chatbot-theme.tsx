@@ -3,7 +3,7 @@ import { Chatbot } from "@/db/schema";
 // Define theme interface
 interface ThemeOptions {
   primary_color: string;
-  secondary_color: string;
+  text_color: string;
 
   font_size: string;
   border_radius: number;
@@ -13,7 +13,7 @@ interface ThemeOptions {
 type ChatbotWithTheme = Chatbot & {
   theme?: {
     primary_color?: string;
-    secondary_color?: string;
+    text_color?: string;
 
     font_size?: string;
     border_radius?: number;
@@ -44,7 +44,7 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
   // Default theme values
   const defaultTheme: ThemeOptions = {
     primary_color: "#4F46E5",
-    secondary_color: "#FFFFFF",
+    text_color: "#1F2937",
 
     font_size: "medium",
     border_radius: 8,
@@ -53,7 +53,7 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
 
   // Theme state variables
   const [primaryColor, setPrimaryColor] = useState(info?.theme?.primary_color || defaultTheme.primary_color);
-  const [secondaryColor, setSecondaryColor] = useState(info?.theme?.secondary_color || defaultTheme.secondary_color);
+  const [textColor, setTextColor] = useState(info?.theme?.text_color || defaultTheme.text_color);
 
   const [fontSize, setFontSize] = useState(info?.theme?.font_size || defaultTheme.font_size);
   const [borderRadius, setBorderRadius] = useState(info?.theme?.border_radius || defaultTheme.border_radius);
@@ -77,7 +77,7 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
     }
     
     // Validate inputs
-    if (!primaryColor || !secondaryColor || !fontSize) {
+    if (!primaryColor || !textColor || !fontSize) {
       toast({
         title: "Error",
         description: "Please fill in all required theme settings",
@@ -94,7 +94,7 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
       const themeData = {
         theme: {
           primary_color: primaryColor,
-          secondary_color: secondaryColor,
+          text_color: textColor,
 
           font_size: fontSize,
           border_radius: borderRadius,
@@ -138,7 +138,7 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
       >
         <div 
           className="p-3 flex items-center justify-between"
-          style={{ backgroundColor: primaryColor, color: secondaryColor }}
+          style={{ backgroundColor: primaryColor, color: textColor }}
         >
           <div className="font-medium">Chatbot</div>
           <button className="p-1 rounded-full hover:bg-opacity-20 hover:bg-black">
@@ -161,7 +161,7 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
                 className="p-2 rounded-lg max-w-[80%]" 
                 style={{ 
                   backgroundColor: primaryColor, 
-                  color: secondaryColor,
+                  color: textColor,
                   borderRadius: `${Math.max(borderRadius - 2, 4)}px`
                 }}
               >
@@ -211,22 +211,22 @@ export function ChatbotTheme({ info, onUpdate }: ChatbotThemeProps): React.React
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-500 flex items-center gap-2">
                 <Palette className="h-4 w-4" />
-                Secondary Color (Text)
+                Text Color
               </Label>
               <div className="flex items-center gap-2">
                 <div 
                   className="h-6 w-6 rounded-full border"
-                  style={{ backgroundColor: secondaryColor }}
+                  style={{ backgroundColor: textColor }}
                 ></div>
                 <Input
                   type="color"
-                  value={secondaryColor}
-                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
                   className="w-full h-8"
                 />
               </div>
               <p className="text-xs text-gray-500">
-                This color will be used for text on primary color backgrounds.
+                This color will be used for text in messages and on primary color backgrounds.
               </p>
             </div>
           </div>
