@@ -68,7 +68,7 @@
    * Fetch chatbot customization from server
    */
   function fetchChatbotCustomization(apiKey) {
-    const configUrl = `http://localhost:3000/api/widget-config?apiKey=${encodeURIComponent(
+    const configUrl = `https://conversy.archan.dev/api/widget-config?apiKey=${encodeURIComponent(
       apiKey
     )}`;
 
@@ -633,7 +633,7 @@
    * Send message to backend API
    */
   function sendMessageToBackend(message) {
-    const url = "http://localhost:3000/api/chat";
+    const url = "https://conversy.archan.dev/api/chat";
     
     // Include customization options in the request if available
     const requestBody = {
@@ -932,13 +932,13 @@
       // Add error handling
       imgElement.onerror = function() {
         // Fallback to default logo on error
-        imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
+        imgElement.src = "https://conversy.archan.dev/Conversy-logo-white.png";
         imgElement.style.padding = "5px";
         console.warn("Failed to load custom logo, using default");
       };
     } else {
       // Use default logo
-      imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
+      imgElement.src = "https://conversy.archan.dev/Conversy-logo-white.png";
       imgElement.alt = "Conversy Logo";
       imgElement.style.padding = "5px";
       imgElement.style.height = "100%";
