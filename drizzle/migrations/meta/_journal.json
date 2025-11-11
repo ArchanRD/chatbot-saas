@@ -15,6 +15,13 @@
       "when": 1749011040964,
       "tag": "0001_great_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751259692249,
+      "tag": "0002_legal_sage",
+      "breakpoints": true
     }
   ]
 }

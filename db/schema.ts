@@ -49,6 +49,17 @@ export const chatbotsTable = pgTable("chatbots", {
     () => organisationTable.id
   ),
   welcome_mesg: text("welcome_mesg").default("Hey! How can I help you?"),
+  tone: text("tone").default("friendly"),
+  answer_style: text("answer_style").default("concise"),
+  logo_url: text("logo_url"),
+  theme: jsonb("theme").default({
+    primary_color: "#4F46E5",
+    text_color: "#1F2937",
+    font_family: "Inter",
+    font_size: "medium",
+    border_radius: 8,
+    chat_position: "bottom-right"
+  }),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });

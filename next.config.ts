@@ -16,7 +16,18 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  serverExternalPackages: ["pdf-parse"]
+  serverExternalPackages: ["pdf-parse"],
+  
+  images: {
+    domains: ["yxvffiodqfhbepaiqgjo.supabase.co"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

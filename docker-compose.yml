@@ -9,10 +9,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=conversy
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data  # Corrected volume path
+      - ./conversy_data:/var/lib/postgresql/data  # Corrected volume path
     ports:
       - "5432:5432"
 
 volumes:
   postgres_data:
-    driver: local
