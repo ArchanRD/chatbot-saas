@@ -22,22 +22,21 @@ const RegisterForm = () => {
     router.push("/dashboard");
   }
   return (
-    <div className="max-w-7xl mx-auto min-h-screen font-inter px-6 lg:px-8">
-      <header className="relative z-10 flex justify-between items-center py-6 md:py-10 ">
-        <div>
-          <Link href="/" className="text-gray-800 flex items-center gap-2">
+    <div className="max-w-7xl mx-auto min-h-screen font-inter">
+      <div className="px-6 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center space-x-2">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center">
             <img
-              src="/conversy-black-logo.png"
-              className="rounded-full h-11"
-              alt=""
+              src="/Conversy-logo-white.png"
+              className="rounded-full"
+              alt="Conversy Logo"
             />
-            Conversy
-          </Link>
-        </div>
-
-        <Button onClick={() => router.push("/login")}>Login</Button>
-      </header>
-      <div className="py-12">
+          </div>
+          <span className="font-medium text-xl text-black">Conversy</span>
+        </Link>
+        <Button onClick={()=>router.push("/login")} className="rounded-full bg-black">Login</Button>
+      </div>
+      <div className="py-12 px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
             Create your account

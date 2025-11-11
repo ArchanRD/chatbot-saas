@@ -719,14 +719,80 @@
       messageElement.style.color = botTextColor;
     }
 
-    // Handle markdown links
-    const formattedMessage = message.replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" style="color: inherit; text-decoration: underline;">$1</a>'
-    );
+    // Create a container for the markdown content
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'conversy-markdown-content';
+    
+    // Process the message with our custom markdown renderer
+    contentContainer.innerHTML = renderMarkdown(message);
 
-    messageElement.innerHTML = formattedMessage;
+    messageElement.appendChild(contentContainer);
     return messageElement;
+  }
+  
+  /**
+   * Simple markdown renderer that handles common elements
+   */
+  function renderMarkdown(text) {
+    if (typeof text !== 'string') {
+      text = String(text || '');
+    }
+    
+    // Sanitize the text first
+    text = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    
+    // Process code blocks first (```code```)
+    text = text.replace(/```([\s\S]*?)```/g, function(match, code) {
+      return '<pre><code>' + code.trim() + '</code></pre>';
+    });
+    
+    // Process inline code (`code`)
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Process headings (# Heading)
+    text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    
+    // Process bold (**text**)
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Process italic (*text*)
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Process links ([text](url))
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, 
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Process unordered lists
+    text = text.replace(/^\s*-\s+(.*$)/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+    
+    // Process ordered lists
+    text = text.replace(/^\s*\d+\.\s+(.*$)/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/gs, function(match) {
+      // Only wrap in <ol> if not already wrapped in <ul>
+      if (!match.startsWith('<ul>')) {
+        return '<ol>' + match + '</ol>';
+      }
+      return match;
+    });
+    
+    // Process paragraphs and line breaks
+    text = text.replace(/\n\s*\n/g, '</p><p>');
+    text = text.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraphs if not already wrapped
+    if (!text.startsWith('<h') && !text.startsWith('<ul') && !text.startsWith('<ol') && !text.startsWith('<p')) {
+      text = '<p>' + text + '</p>';
+    }
+    
+    return text;
   }
 
   /**
