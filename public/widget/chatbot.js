@@ -10,10 +10,12 @@
   let apiKey = scriptTag?.getAttribute("data-api-key") || "";
 
   // Widget state
-  let widgetConfig = null;
+  let widgetState = {};
+  let chatbotCustomization = null;
   let chatOpen = false;
   let messages = [];
   let isWaitingForResponse = false;
+  let logoUrl = null;
 
   // DOM elements (will be populated after creation)
   let chatContainer,
@@ -38,62 +40,156 @@
     }
 
     if (!apiKey) {
-      console.error(
-        "Conversy: API key is required. Add data-api-key attribute to the script tag."
-      );
+      console.error('Conversy: API key is empty. Provide a valid API key.');
       return;
     }
-
-    // If not fetching config, just create the DOM and event listeners
+    
+    // Store API key in widget state
+    widgetState.apiKey = apiKey;
+    
+    // Create the widget DOM first
     createWidgetDOM();
+    
+    // Initialize event listeners
     initEventListeners();
-
-    // Fetch configuration from server
-    // fetchConfig(apiKey)
-    //   .then(config => {
-    //     widgetConfig = config;
-    //     createWidgetDOM();
-    //     initEventListeners();
-    //   })
-    //   .catch(error => {
-    //     console.error('Conversy: Failed to load widget configuration', error);
-    //   });
+    
+    // Fetch chatbot configuration
+    fetchChatbotCustomization(apiKey)
+      .then(customization => {
+        chatbotCustomization = customization;
+        updateWidgetWithCustomization(customization);
+      })
+      .catch(error => {
+        console.error('Conversy: Failed to load chatbot customization', error);
+      });
   }
 
   /**
-   * Fetch widget configuration from server
+   * Fetch chatbot customization from server
    */
-  // function fetchConfig(apiKey) {
-  //   const configUrl = `http://localhost:3000/api/widget-config?apiKey=${encodeURIComponent(
-  //     apiKey
-  //   )}`;
+  function fetchChatbotCustomization(apiKey) {
+    const configUrl = `http://localhost:3000/api/widget-config?apiKey=${encodeURIComponent(
+      apiKey
+    )}`;
 
-  //   return fetch(configUrl)
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error(`Failed to fetch config: ${response.status}`);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((config) => {
-  //       // Apply default values for any missing properties
-  //       return {
-  //         theme: {
-  //           primary: "#2563eb",
-  //           secondary: "#ffffff",
-  //           text: "#1f2937",
-  //           bubble: "#2563eb",
-  //           ...(config.theme || {}),
-  //         },
-  //         position: config.position || "bottom-right",
-  //         title: config.title || "Chat Support",
-  //         placeholder: config.placeholder || "Ask anything...",
-  //         welcomeMessage:
-  //           config.welcomeMessage || "Hello! How can I help you today?",
-  //         ...config,
-  //       };
-  //     });
-  // }
+    return fetch(configUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch customization: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Apply default values for any missing properties
+        return {
+          theme: {
+            primary_color: "#2563eb",
+            text_color: "#1F2937",
+            font_family: "Inter",
+            font_size: "medium",
+            border_radius: 8,
+            chat_position: "bottom-right",
+            ...(data.theme || {}),
+          },
+          welcome_mesg: data.welcome_mesg || "Hello! How can I help you today?",
+          tone: data.tone || "friendly",
+          answer_style: data.answer_style || "concise",
+          name: data.name || "Chatbot",
+          description: data.description || "AI Assistant",
+          ...data,
+        };
+      });
+  }
+  
+  /**
+   * Apply theme settings to the widget
+   */
+  function applyTheme(theme) {
+    if (!theme) return;
+    
+    // Update chat panel header
+    const headerElement = document.getElementById('conversy-chat-header');
+    if (headerElement && theme.primary_color) {
+      headerElement.style.backgroundColor = theme.primary_color;
+    }
+    
+    // Update send button
+    if (sendButton && theme.primary_color) {
+      sendButton.style.backgroundColor = theme.primary_color;
+    }
+    
+    // Update text color for messages
+    if (theme.text_color) {
+      if (messagesContainer) {
+        messagesContainer.style.color = theme.text_color;
+      }
+    }
+    
+    // Update border radius for all elements
+    if (theme.border_radius) {
+      const borderRadius = `${theme.border_radius}px`;
+      
+      // Update chat panel border radius
+      if (chatPanel) {
+        chatPanel.style.borderRadius = borderRadius;
+      }
+      
+      // Update header border radius
+      if (headerElement) {
+        headerElement.style.borderTopLeftRadius = borderRadius;
+        headerElement.style.borderTopRightRadius = borderRadius;
+      }
+    }
+    
+    // Update position
+    if (theme.chat_position) {
+      applyPositionStyles(chatContainer, theme.chat_position);
+      positionChatPanel(chatPanel, theme.chat_position);
+    }
+    
+    // Store colors in CSS variables for message styling
+    if (theme.primary_color) {
+      // Store the color in a CSS variable for user message styling
+      document.documentElement.style.setProperty('--user-message-color', theme.primary_color);
+    }
+    
+    if (theme.text_color) {
+      // Store the text color in a CSS variable for bot message styling
+      document.documentElement.style.setProperty('--bot-text-color', theme.text_color);
+    }
+  }
+  
+  /**
+   * Update widget with customization settings
+   */
+  function updateWidgetWithCustomization(customization) {
+    if (!customization) return;
+    
+    // Update welcome message if available
+    if (customization.welcome_mesg && messagesContainer) {
+      // Clear existing messages
+      messagesContainer.innerHTML = '';
+      // Add custom welcome message
+      addBotMessage(customization.welcome_mesg);
+    }
+    
+    // Store logo URL if available
+    if (customization.logo_url) {
+      logoUrl = customization.logo_url;
+      updateChatBubbleLogo();
+    }
+    
+    // Update theme if available
+    if (customization.theme) {
+      applyTheme(customization.theme);
+    }
+    
+    // Update customization info
+    updateCustomizationInfo(customization);
+    
+    // Add branding footer
+    addBrandingFooter();
+  }
 
   /**
    * Create all DOM elements for the chat widget
@@ -121,11 +217,10 @@
     chatBubble.style.justifyContent = "center";
     chatBubble.style.cursor = "pointer";
     chatBubble.style.transition = "transform 0.3s ease";
-
-    // Add chat icon to bubble
-    chatBubble.innerHTML = `
-      <img src="https://conversy.archan.dev/Conversy-logo-white.png" style="border-radius:50%;padding:5px;height:60px;" />
-    `;
+    chatBubble.style.overflow = "hidden";
+    
+    // Default logo will be set in updateChatBubbleLogo
+    updateChatBubbleLogo();
 
     // Create chat panel
     chatPanel = document.createElement("div");
@@ -146,9 +241,10 @@
 
     // Create chat header
     const chatHeader = document.createElement("div");
+    chatHeader.id = "conversy-chat-header";
     chatHeader.style.padding = "16px";
     chatHeader.style.backgroundColor = "#292929";
-    chatHeader.style.color = "#ffffff";
+    chatHeader.style.color = "var(--bot-text-color, #1f2937)";
     chatHeader.style.fontFamily = "system-ui, -apple-system, sans-serif";
     chatHeader.style.fontSize = "16px";
     chatHeader.style.fontWeight = "600";
@@ -159,13 +255,24 @@
     chatHeader.style.alignItems = "center";
 
     chatHeader.innerHTML = `
-      <div>Conversy Chat</div>
+      <div id="conversy-header-title">Chat</div>
       <div id="conversy-close-button" style="cursor:pointer;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
     `;
+
+    // Create customization info container (will be populated later)
+    const customizationInfoContainer = document.createElement("div");
+    customizationInfoContainer.id = "conversy-customization-info";
+    customizationInfoContainer.style.padding = "6px 10px";
+    customizationInfoContainer.style.fontSize = "10px";
+    customizationInfoContainer.style.color = "#6b7280";
+    customizationInfoContainer.style.textAlign = "center";
+    customizationInfoContainer.style.borderBottom = "1px solid #e5e7eb";
+    customizationInfoContainer.style.backgroundColor = "#f9fafb";
+    customizationInfoContainer.style.display = "none"; // Hide until populated
 
     // Create messages container
     messagesContainer = document.createElement("div");
@@ -222,6 +329,7 @@
 
     // Assemble chat panel
     chatPanel.appendChild(chatHeader);
+    chatPanel.appendChild(customizationInfoContainer);
     chatPanel.appendChild(messagesContainer);
     chatPanel.appendChild(inputArea);
 
@@ -418,15 +526,15 @@
       titleElement.textContent = newConfig.title;
     }
 
-    // Update panel background color
-    if (oldConfig.theme.secondary !== newConfig.theme.secondary) {
-      chatPanel.style.backgroundColor = newConfig.theme.secondary;
+    // Update text color
+    if (oldConfig.theme.text_color !== newConfig.theme.text_color) {
+      if (messagesContainer) {
+        messagesContainer.style.color = newConfig.theme.text_color;
+      }
     }
 
-    // Update text color
-    if (oldConfig.theme.text !== newConfig.theme.text) {
-      messagesContainer.style.color = newConfig.theme.text;
-    }
+    // Update input field text color (if needed)
+    // This section is reserved for future input field text color customization
 
     // Update input placeholder
     if (oldConfig.placeholder !== newConfig.placeholder) {
@@ -493,16 +601,28 @@
    * Send message to backend API
    */
   function sendMessageToBackend(message) {
-    const url = "https://conversy.archan.dev/api/chat";
+    const url = "http://localhost:3000/api/chat";
+    
+    // Include customization options in the request if available
+    const requestBody = {
+      message: message,
+    };
+    
+    // Add customization options if available
+    if (chatbotCustomization) {
+      requestBody.customization = {
+        tone: chatbotCustomization.tone,
+        answer_style: chatbotCustomization.answer_style
+      };
+    }
+    
     return fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         'x-api-key': apiKey,
       },
-      body: JSON.stringify({
-        message: message,
-      }),
+      body: JSON.stringify(requestBody),
     }).then((response) => {
       if (!response.ok) {
         throw new Error(`Server responded with ${response.status}`);
@@ -577,12 +697,26 @@
 
     if (role === "user") {
       messageElement.style.alignSelf = "flex-end";
-      messageElement.style.backgroundColor = "#292929";
-      messageElement.style.color = "#ffffff";
+      
+      // Use theme color from CSS variable or fallback to default
+      const userMessageColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--user-message-color').trim() || "#292929";
+      
+      messageElement.style.backgroundColor = userMessageColor;
+      
+      // Use theme text color from CSS variable or fallback to default
+      const userTextColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--text-color').trim() || "#1f2937";
+      messageElement.style.color = userTextColor;
     } else {
       messageElement.style.alignSelf = "flex-start";
       messageElement.style.backgroundColor = "#f3f4f6";
-      messageElement.style.color = "#1f2937";
+      
+      // Use theme text color from CSS variable or fallback to default
+      const botTextColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--bot-text-color').trim() || "#1f2937";
+      
+      messageElement.style.color = botTextColor;
     }
 
     // Handle markdown links
@@ -653,6 +787,124 @@
    */
   function scrollToBottom() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+  
+  /**
+   * Update customization info below header
+   */
+  function updateCustomizationInfo(customization) {
+    if (!customization) return;
+    
+    // Get the customization info container
+    const infoElement = document.getElementById('conversy-customization-info');
+    if (!infoElement) return;
+    
+    // Hide the customization info element since we're not showing tone and style anymore
+    infoElement.style.display = 'none';
+    infoElement.textContent = '';
+    
+    // Update header title with chatbot name
+    const headerTitle = document.getElementById('conversy-header-title');
+    if (headerTitle && customization.name) {
+      headerTitle.textContent = customization.name;
+    }
+  }
+  
+  /**
+   * Update chat bubble with custom logo if available
+   */
+  function updateChatBubbleLogo() {
+    if (!chatBubble) return;
+    
+    // Clear existing content
+    chatBubble.innerHTML = '';
+    
+    // Create image element
+    const imgElement = document.createElement('img');
+    
+    if (logoUrl) {
+      // Use custom logo
+      imgElement.src = logoUrl;
+      imgElement.alt = "Chatbot Logo";
+      imgElement.style.width = "100%";
+      imgElement.style.height = "100%";
+      imgElement.style.objectFit = "cover";
+      imgElement.style.borderRadius = "50%";
+      
+      // Add error handling
+      imgElement.onerror = function() {
+        // Fallback to default logo on error
+        imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
+        imgElement.style.padding = "5px";
+        console.warn("Failed to load custom logo, using default");
+      };
+    } else {
+      // Use default logo
+      imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
+      imgElement.alt = "Conversy Logo";
+      imgElement.style.padding = "5px";
+      imgElement.style.height = "100%";
+    }
+    
+    // Append image to chat bubble
+    chatBubble.appendChild(imgElement);
+  }
+  
+  /**
+   * Add branding footer at the bottom
+   */
+  function addBrandingFooter() {
+    // Remove existing branding if any
+    const existingBranding = document.getElementById('conversy-branding-footer');
+    if (existingBranding) {
+      existingBranding.remove();
+    }
+    
+    // Get primary color or use default
+    const primaryColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--user-message-color').trim() || '#2563eb';
+    
+    // Create a darker shade of the primary color for the gradient
+    const darkerColor = createDarkerShade(primaryColor);
+    
+    // Create branding footer
+    const brandingFooter = document.createElement('div');
+    brandingFooter.id = 'conversy-branding-footer';
+    brandingFooter.style.padding = '6px';
+    brandingFooter.style.fontSize = '9px';
+    brandingFooter.style.color = '#ffffff';
+    brandingFooter.style.textAlign = 'center';
+    brandingFooter.style.marginTop = 'auto';
+    brandingFooter.style.background = `linear-gradient(90deg, ${primaryColor}, ${darkerColor})`;
+    brandingFooter.innerHTML = 'Powered by <a href="https://conversy.archan.dev" target="_blank" style="color: #ffffff; text-decoration: none;">Conversy</a>';
+    
+    // Add to chat panel
+    if (chatPanel) {
+      chatPanel.appendChild(brandingFooter);
+    }
+  }
+  
+  /**
+   * Create a darker shade of a color
+   * @param {string} color - The color in hex format (e.g., #2563eb)
+   * @returns {string} - A darker shade of the color
+   */
+  function createDarkerShade(color) {
+    // Remove the # if present
+    color = color.replace('#', '');
+    
+    // Parse the hex values
+    let r = parseInt(color.substring(0, 2), 16);
+    let g = parseInt(color.substring(2, 4), 16);
+    let b = parseInt(color.substring(4, 6), 16);
+    
+    // Make the color darker by reducing each component by 30%
+    r = Math.max(0, Math.floor(r * 0.7));
+    g = Math.max(0, Math.floor(g * 0.7));
+    b = Math.max(0, Math.floor(b * 0.7));
+    
+    // Convert back to hex
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }
 
   // Initialize the widget when the DOM is fully loaded

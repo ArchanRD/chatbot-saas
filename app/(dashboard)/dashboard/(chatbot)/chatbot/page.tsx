@@ -2,11 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bot, Globe, BookOpen, Info, Hammer, Check, Copy } from "lucide-react";
+import { Bot, Globe, BookOpen, Info, Hammer, Check, Copy, Sparkles, Palette, Loader } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ChatbotInfo } from "@/components/chatbot/chatbot-info";
 import { ChatbotCors } from "@/components/chatbot/chatbot-cors";
 import { ChatbotKnowledge } from "@/components/chatbot/chatbot-knowledge";
+import { ChatbotCustomization } from "@/components/chatbot/chatbot-customization";
+import { ChatbotTheme } from "@/components/chatbot/chatbot-theme";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -49,6 +52,16 @@ const tabs = [
     label: "Integration",
     icon: Hammer,
   },
+  {
+    id: "customization",
+    label: "Customization",
+    icon: Sparkles,
+  },
+  {
+    id: "theme",
+    label: "Theme",
+    icon: Palette,
+  },
 ];
 
 export default function ChatbotPage() {
@@ -56,6 +69,7 @@ export default function ChatbotPage() {
   const [chatbotDetails, setChatbotDetails] = useState<Chatbot>();
   const [orgDetails, setOrgDetails] = useState<Organisation>();
   const [knowledgeBase, setKnowledgeBase] = useState<Files>();
+  const [isLoading, setIsLoading] = useState(false);
   const { data, status, update } = useSession();
   const router = useRouter();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -217,6 +231,98 @@ export default function ChatbotPage() {
                 </div>
               </div>
             </div>
+          )}
+          {activeTab === "customization" && (
+            <ChatbotCustomization 
+              info={chatbotDetails} 
+              onUpdate={async (data) => {
+                try {
+                  setIsLoading(true);
+                  
+                  // Make API call to update the chatbot customization
+                  const response = await fetch(`/api/chatbots/${chatbotDetails?.id}`, {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                  });
+                  
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Failed to update chatbot customization");
+                  }
+                  
+                  // Log success message
+                  console.log("Chatbot customization updated successfully:", data);
+                  
+                  // After successful update, refresh the chatbot details
+                  await fetchChatbotDetails();
+                  
+                  // Show success notification
+                  toast({
+                    title: "Success",
+                    description: "Chatbot customization updated successfully",
+                    variant: "default"
+                  });
+                } catch (error) {
+                  console.error("Error updating chatbot customization:", error);
+                  toast({
+                    title: "Error",
+                    description: error instanceof Error ? error.message : "Failed to update chatbot customization",
+                    variant: "destructive"
+                  });
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+            />
+          )}
+          {activeTab === "theme" && (
+            <ChatbotTheme 
+              info={chatbotDetails as any} 
+              onUpdate={async (data) => {
+                try {
+                  setIsLoading(true);
+                  
+                  // Make API call to update the chatbot theme
+                  const response = await fetch(`/api/chatbots/${chatbotDetails?.id}`, {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                  });
+                  
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Failed to update chatbot theme");
+                  }
+                  
+                  // Log success message
+                  console.log("Chatbot theme updated successfully:", data);
+                  
+                  // After successful update, refresh the chatbot details
+                  await fetchChatbotDetails();
+                  
+                  // Show success notification
+                  toast({
+                    title: "Success",
+                    description: "Chatbot theme updated successfully",
+                    variant: "default"
+                  });
+                } catch (error) {
+                  console.error("Error updating chatbot theme:", error);
+                  toast({
+                    title: "Error",
+                    description: error instanceof Error ? error.message : "Failed to update chatbot theme",
+                    variant: "destructive"
+                  });
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+            />
           )}
         </div>
       </div>

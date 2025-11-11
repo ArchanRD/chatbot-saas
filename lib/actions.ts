@@ -366,3 +366,25 @@ export const updateCorsDomain = async (orgId: string, corsDomain: string) => {
     return { error: true, message: "Failed to update cors domain" };
   }
 };
+
+export const updateChatbotById = async (chatbotId: string, data: Partial<typeof chatbotsTable.$inferInsert>) => {
+  try {
+    const result = await db
+      .update(chatbotsTable)
+      .set({
+        ...data,
+        updated_at: new Date()
+      })
+      .where(eq(chatbotsTable.id, chatbotId))
+      .returning();
+    
+    if (result.length === 0) {
+      return { error: true, message: "Chatbot not found" };
+    }
+    
+    return { error: false, message: "Chatbot updated successfully", data: result[0] };
+  } catch (error) {
+    console.error("Error updating chatbot:", error);
+    return { error: true, message: "Failed to update chatbot" };
+  }
+};
