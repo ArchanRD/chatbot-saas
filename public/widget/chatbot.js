@@ -68,7 +68,7 @@
    * Fetch chatbot customization from server
    */
   function fetchChatbotCustomization(apiKey) {
-    const configUrl = `https://conversy.archan.dev/api/widget-config?apiKey=${encodeURIComponent(
+    const configUrl = `http://localhost:3000/api/widget-config?apiKey=${encodeURIComponent(
       apiKey
     )}`;
 
@@ -109,8 +109,17 @@
     
     // Update chat panel header
     const headerElement = document.getElementById('conversy-chat-header');
-    if (headerElement && theme.primary_color) {
-      headerElement.style.backgroundColor = theme.primary_color;
+    if (headerElement) {
+      if (theme.primary_color) {
+        headerElement.style.backgroundColor = theme.primary_color;
+      }
+      // Update header title text color
+      if (theme.text_color) {
+        const headerTitle = document.getElementById('conversy-header-title');
+        if (headerTitle) {
+          headerTitle.style.color = theme.text_color;
+        }
+      }
     }
     
     // Update send button
@@ -118,10 +127,22 @@
       sendButton.style.backgroundColor = theme.primary_color;
     }
     
-    // Update text color for messages
+    // Update text color (only for user messages, bot messages stay black)
     if (theme.text_color) {
-      if (messagesContainer) {
-        messagesContainer.style.color = theme.text_color;
+      // Update existing user messages with the new text color
+      const existingUserMessages = messagesContainer?.querySelectorAll('.conversy-user-message');
+      if (existingUserMessages) {
+        existingUserMessages.forEach(messageEl => {
+          messageEl.style.color = theme.text_color;
+        });
+      }
+      
+      // Ensure all bot messages are black
+      const existingBotMessages = messagesContainer?.querySelectorAll('.conversy-bot-message');
+      if (existingBotMessages) {
+        existingBotMessages.forEach(messageEl => {
+          messageEl.style.color = "#000000";
+        });
       }
     }
     
@@ -185,9 +206,8 @@
     }
     
     if (theme.text_color) {
-      // Store the text color in CSS variables for both user and bot message styling
+      // Store the text color in CSS variable for user message styling only
       document.documentElement.style.setProperty('--text-color', theme.text_color);
-      document.documentElement.style.setProperty('--bot-text-color', theme.text_color);
     }
   }
   
@@ -317,7 +337,7 @@
     messagesContainer.style.gap = "12px";
     messagesContainer.style.fontFamily = "system-ui, -apple-system, sans-serif";
     messagesContainer.style.fontSize = "14px";
-    messagesContainer.style.color = "#1f2937";
+    messagesContainer.style.color = "#000000"; // Default to black (bot messages inherit this)
 
     // Create input area
     const inputArea = document.createElement("div");
@@ -558,12 +578,8 @@
       titleElement.textContent = newConfig.title;
     }
 
-    // Update text color
-    if (oldConfig.theme.text_color !== newConfig.theme.text_color) {
-      if (messagesContainer) {
-        messagesContainer.style.color = newConfig.theme.text_color;
-      }
-    }
+    // Update text color (only affects user messages, bot messages stay black)
+    // Note: text_color is applied per message element, not to the container
 
     // Update input field text color (if needed)
     // This section is reserved for future input field text color customization
@@ -633,7 +649,7 @@
    * Send message to backend API
    */
   function sendMessageToBackend(message) {
-    const url = "https://conversy.archan.dev/api/chat";
+    const url = "http://localhost:3000/api/chat";
     
     // Include customization options in the request if available
     const requestBody = {
@@ -744,11 +760,8 @@
       messageElement.style.alignSelf = "flex-start";
       messageElement.style.backgroundColor = "#f3f4f6";
       
-      // Use theme text color from CSS variable or fallback to default
-      const botTextColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--bot-text-color').trim() || "#1f2937";
-      
-      messageElement.style.color = botTextColor;
+      // Bot messages always use black text
+      messageElement.style.color = "#000000";
     }
 
     // Create a container for the markdown content
@@ -932,13 +945,13 @@
       // Add error handling
       imgElement.onerror = function() {
         // Fallback to default logo on error
-        imgElement.src = "https://conversy.archan.dev/Conversy-logo-white.png";
+        imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
         imgElement.style.padding = "5px";
         console.warn("Failed to load custom logo, using default");
       };
     } else {
       // Use default logo
-      imgElement.src = "https://conversy.archan.dev/Conversy-logo-white.png";
+      imgElement.src = "http://localhost:3000/Conversy-logo-white.png";
       imgElement.alt = "Conversy Logo";
       imgElement.style.padding = "5px";
       imgElement.style.height = "100%";
@@ -974,7 +987,7 @@
     brandingFooter.style.textAlign = 'center';
     brandingFooter.style.marginTop = 'auto';
     brandingFooter.style.background = `linear-gradient(90deg, ${primaryColor}, ${darkerColor})`;
-    brandingFooter.innerHTML = 'Powered by <a href="https://conversy.archan.dev" target="_blank" style="color: #ffffff; text-decoration: none;">Conversy</a>';
+    brandingFooter.innerHTML = 'Powered by <a href="http://localhost:3000" target="_blank" style="color: #ffffff; text-decoration: none;">Conversy</a>';
     
     // Add to chat panel
     if (chatPanel) {
